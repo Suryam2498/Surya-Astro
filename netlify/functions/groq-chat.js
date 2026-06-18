@@ -17,7 +17,7 @@ exports.handler = async (event) => {
     };
   }
 
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY1;
   if (!apiKey) {
     return {
       statusCode: 500,
