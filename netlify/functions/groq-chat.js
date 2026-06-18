@@ -1,5 +1,38 @@
 const https = require('https');
 
+// Load all Groq keys from env vars
+const GROQ_KEYS = [
+  process.env.GROQ_KEY_1,
+  process.env.GROQ_KEY_2,
+  process.env.GROQ_KEY_3,
+  process.env.GROQ_KEY_4,
+  process.env.GROQ_KEY_5,
+  process.env.GROQ_KEY_6,
+].filter(Boolean); // remove undefined ones
+
+function callGroq(apiKey, body) {
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'api.groq.com',
+      path: '/openai/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    };
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve({ status: res.statusCode, body: data }));
+    });
+    req.on('error', (err) => resolve({ status: 502, body: JSON.stringify({ error: err.message }) }));
+    req.write(body);
+    req.end();
+  });
+}
+
 exports.handler = async (event) => {
   const headers = {
     "Content-Type": "application/json",
@@ -7,18 +40,9 @@ exports.handler = async (event) => {
     "Access-Control-Allow-Headers": "Content-Type"
   };
 
-  if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers, body: "" };
-  }
-
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: "Missing GEMINI_API_KEY" }) };
-  }
+  if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers, body: "" };
+  if (event.httpMethod !== "POST") return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
+  if (!GROQ_KEYS.length) return { statusCode: 500, headers, body: JSON.stringify({ error: "No Groq keys configured" }) };
 
   let payload;
   try {
@@ -32,41 +56,21 @@ exports.handler = async (event) => {
   }
 
   const body = JSON.stringify({
-    model: "gemini-1.5-flash",
+    model: "llama-3.1-8b-instant",
     messages: payload.messages,
-    max_tokens: payload.max_tokens || 800,
+    max_tokens: payload.max_tokens || 1200,
     temperature: payload.temperature ?? 0.7
   });
 
-  return new Promise((resolve) => {
-    const options = {
-      hostname: 'generativelanguage.googleapis.com',
-      path: '/v1beta/openai/chat/completions',
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(body)
-      }
-    };
+  // Try each key until one works
+  for (let i = 0; i < GROQ_KEYS.length; i++) {
+    const result = await callGroq(GROQ_KEYS[i], body);
+    if (result.status === 429 || result.status === 413) {
+      console.log(`Groq key ${i + 1} rate limited, trying next...`);
+      continue;
+    }
+    return { statusCode: result.status, headers, body: result.body };
+  }
 
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          resolve({ statusCode: res.statusCode, headers, body: data });
-        } catch {
-          resolve({ statusCode: 502, headers, body: JSON.stringify({ error: "Bad response from Gemini" }) });
-        }
-      });
-    });
-
-    req.on('error', (err) => {
-      resolve({ statusCode: 502, headers, body: JSON.stringify({ error: "Request failed: " + err.message }) });
-    });
-
-    req.write(body);
-    req.end();
-  });
+  return { statusCode: 429, headers, body: JSON.stringify({ error: "All Groq keys rate limited. Try again later." }) };
 };

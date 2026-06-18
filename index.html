@@ -6,6 +6,7 @@
   <title>సూర్య జ్యోతిష్యం | Surya Jyothishyam</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="local-config.js" onerror="console.log('Production mode')"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
     :root {
@@ -593,7 +594,44 @@ function addLog(type,msg){
 // ══════════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════════
-const AI_ENDPOINT = '/api/groq-chat';
+// Keys loaded from local-config.js (gitignored). On Netlify, keys stay server-side.
+const GROQ_KEYS = window.GROQ_KEYS || [];
+const IS_LOCAL = GROQ_KEYS.length > 0;
+const AI_MODEL = 'llama-3.1-8b-instant';
+let groqKeyIndex = 0;
+
+async function callAI(messages, max_tokens) {
+  if (!IS_LOCAL) {
+    // Netlify proxy — keys stay on server
+    const res = await fetch('/api/groq-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: AI_MODEL, messages, max_tokens, temperature: 0.7 })
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json?.error?.message || `Error ${res.status}`);
+    return json.choices?.[0]?.message?.content || null;
+  }
+
+  // Local: call Groq directly with key rotation
+  for (let i = 0; i < GROQ_KEYS.length; i++) {
+    const keyIdx = (groqKeyIndex + i) % GROQ_KEYS.length;
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEYS[keyIdx]}` },
+      body: JSON.stringify({ model: AI_MODEL, messages, max_tokens, temperature: 0.7 })
+    });
+    const json = await res.json().catch(() => ({}));
+    if (res.status === 429 || res.status === 413) {
+      groqKeyIndex = (keyIdx + 1) % GROQ_KEYS.length;
+      continue;
+    }
+    if (!res.ok) throw new Error(json?.error?.message || `Error ${res.status}`);
+    groqKeyIndex = keyIdx;
+    return json.choices?.[0]?.message?.content || null;
+  }
+  throw new Error('All keys rate limited. Try again in a minute.');
+}
 
 const RASHIS = [
   {num:1, te:'మేషం',      en:'Aries',       abbr:'Ar'},
@@ -1047,26 +1085,16 @@ Lagna: ${lagnaRashi.en} (${lagnaRashi.te}) | Moon Sign: ${rashi.en} (${rashi.te}
 Planets: ${planetStr}
 Current Mahadasha: ${curDasha} | Antardasha: ${curAntar}
 
-Give a structured reading with these sections (Telugu text first, English in brackets):
-**నక్షత్ర స్వభావం / Nakshatra Nature** - Personality from birth star (2-3 lines)
-**లగ్న ఫలం / Lagna Reading** - Character and life path (2-3 lines)
+Give a structured reading with these sections:
+**నక్షత్ర స్వభావం / Nakshatra Nature** - Personality from birth star (2 lines)
+**లగ్న ఫలం / Lagna Reading** - Character and life path (2 lines)
 **రాశి ఫలం / Moon Sign** - Emotional nature (2 lines)
-**దశా ఫలం / Dasha Period** - Current dasha + antardasha prediction (2-3 lines)
-**శుభ సమయాలు / Auspicious Guidance** - Key advice (1-2 lines)
-Keep each section concise and practical.`;
+**దశా ఫలం / Dasha Period** - Current dasha + antardasha prediction (2 lines)
+**శుభ సమయాలు / Auspicious Guidance** - Key advice (1 line)
+Write in Telugu first then English in brackets. Always complete every sentence fully. Never stop mid-sentence.`;
   try{
-    const res=await fetch(AI_ENDPOINT,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'gemini-1.5-flash',messages:[{role:'user',content:prompt}],max_tokens:1200,temperature:0.7})
-    });
-    const json=await res.json().catch(()=>({}));
-    if(!res.ok){
-      const errMsg=json?.error?.message||json?.error||`AI service error (${res.status})`;
-      return `AI service unavailable: ${String(errMsg).replace(/[<>]/g,'')}`;
-    }
-    return json.choices?.[0]?.message?.content||null;
-  }catch(e){return null;}
+    return await callAI([{role:'user',content:prompt}], 2000);
+  }catch(e){return `AI service unavailable: ${e.message}`;}
 }
 function renderAI(text){
   document.getElementById('aiLoading').style.display='none';
@@ -1105,7 +1133,7 @@ async function sendChat(){
   scrollChat();
 
   // Build system context
-  let systemPrompt=`You are an expert Vedic astrologer assistant. Answer questions about astrology in Telugu with English in brackets. Be concise and helpful.`;
+  let systemPrompt=`You are an expert Vedic astrologer assistant. Answer in Telugu first then English in brackets. Keep answers to 3-4 sentences. Always complete every sentence fully, never stop mid-sentence.`;
   if(chatContext){
     systemPrompt+=`\n\nUser's birth chart:\nName: ${chatContext.name}\nDOB: ${chatContext.dob}\nNakshatra: ${chatContext.nak.en} (${chatContext.nak.te}), Pada ${chatContext.pada}\nLagna: ${chatContext.lagnaRashi.en} (${chatContext.lagnaRashi.te})\nMoon Sign: ${chatContext.rashi.en} (${chatContext.rashi.te})\nCurrent Mahadasha: ${chatContext.curDasha}\nCurrent Antardasha: ${chatContext.curAntar}`;
   } else {
@@ -1116,21 +1144,7 @@ async function sendChat(){
   if(chatHistory.length>10) chatHistory=chatHistory.slice(-10);
 
   try{
-    const res=await fetch(AI_ENDPOINT,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'gemini-1.5-flash',
-        messages:[{role:'user',content:systemPrompt+'\n\nUser: '+q}],
-        max_tokens:600,temperature:0.7
-      })
-    });
-    const json=await res.json().catch(()=>({}));
-    if(!res.ok){
-      const errMsg=json?.error?.message||json?.error||`Chat service error (${res.status})`;
-      throw new Error(String(errMsg).replace(/[<>]/g,''));
-    }
-    const reply=json.choices?.[0]?.message?.content||'క్షమించండి, సమాధానం అందలేదు. (Sorry, no response.)';
+    const reply = await callAI([{role:'user',content:systemPrompt+'\n\nUser: '+q}], 1200) || 'క్షమించండి, సమాధానం అందలేదు. (Sorry, no response.)';
     chatHistory.push({role:'assistant',content:reply});
     bumpStat('chats'); addLog('chat','Chatbot message sent');
     document.getElementById('chatTyping').style.display='none';
