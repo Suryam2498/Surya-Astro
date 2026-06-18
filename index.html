@@ -109,12 +109,17 @@
     .btn-geocode:hover{background:var(--gold-dim)}
     .coords-display{font-size:10px;color:var(--subtext);margin-top:3px;min-height:14px}
     .coords-display.ok{color:var(--green)} .coords-display.err{color:var(--red)}
-    .btn-calculate{margin-top:18px;width:100%;padding:10px 14px;
+    .btn-row{margin-top:18px;display:flex;gap:10px}
+    .btn-calculate{flex:1;padding:10px 14px;
       background:linear-gradient(135deg,#6b3a00,#d4a843,#6b3a00);background-size:200% 100%;
       border:none;border-radius:10px;color:#000;font-size:12px;font-weight:700;
       font-family:'Cinzel',serif;letter-spacing:1.4px;cursor:pointer;transition:background-position .3s,transform .1s}
     .btn-calculate:hover{background-position:100% 0;transform:translateY(-1px)}
     .btn-calculate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-clear{padding:10px 18px;background:var(--surface2);border:1.5px solid var(--border);
+      border-radius:10px;color:var(--subtext);font-size:12px;font-weight:700;
+      font-family:'Cinzel',serif;letter-spacing:1px;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .btn-clear:hover{border-color:var(--red);color:var(--red);background:rgba(224,85,85,.08)}
 
     /* ── RESULTS ── */
     #results{display:none}
@@ -413,9 +418,14 @@ function addLog(type,msg){
         </div>
 
       </div>
-      <button class="btn-calculate" onclick="calculate()" id="btnCalc">
-        ✨ జాతకం లెక్కించండి — CALCULATE HOROSCOPE
-      </button>
+      <div class="btn-row">
+        <button class="btn-calculate" onclick="calculate()" id="btnCalc">
+          ✨ జాతకం లెక్కించండి — CALCULATE
+        </button>
+        <button class="btn-clear" onclick="clearForm()" title="Clear all fields">
+          🗑️ Clear
+        </button>
+      </div>
     </div>
 
     <!-- Results -->
@@ -583,7 +593,8 @@ function addLog(type,msg){
 // ══════════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════════
-const GROQ_ENDPOINT = '/api/groq-chat';
+const GEMINI_KEY = 'AIzaSyAQ.Ab8RN6J7EL091LHqdi8au2ic4IsOXzg3QivX4r6y9kKwS0myqw';
+const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`;
 
 const RASHIS = [
   {num:1, te:'మేషం',      en:'Aries',       abbr:'Ar'},
@@ -1045,10 +1056,10 @@ Give a structured reading with these sections (Telugu text first, English in bra
 **శుభ సమయాలు / Auspicious Guidance** - Key advice (1-2 lines)
 Keep each section concise and practical.`;
   try{
-    const res=await fetch(GROQ_ENDPOINT,{
+    const res=await fetch(GEMINI_ENDPOINT,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:500,temperature:0.7})
+      headers:{'Authorization':`Bearer ${GEMINI_KEY}`,'Content-Type':'application/json'},
+      body:JSON.stringify({model:'gemini-1.5-flash',messages:[{role:'user',content:prompt}],max_tokens:1200,temperature:0.7})
     });
     const json=await res.json().catch(()=>({}));
     if(!res.ok){
@@ -1106,13 +1117,13 @@ async function sendChat(){
   if(chatHistory.length>10) chatHistory=chatHistory.slice(-10);
 
   try{
-    const res=await fetch(GROQ_ENDPOINT,{
+    const res=await fetch(GEMINI_ENDPOINT,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Authorization':`Bearer ${GEMINI_KEY}`,'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'llama-3.3-70b-versatile',
-        messages:[{role:'system',content:systemPrompt},...chatHistory],
-        max_tokens:300,temperature:0.7
+        model:'gemini-1.5-flash',
+        messages:[{role:'user',content:systemPrompt+'\n\nUser: '+q}],
+        max_tokens:600,temperature:0.7
       })
     });
     const json=await res.json().catch(()=>({}));
@@ -1306,6 +1317,20 @@ async function downloadPDF(){
 // ══════════════════════════════════════════════════════
 // UTILITIES
 // ══════════════════════════════════════════════════════
+function clearForm(){
+  ['inpName','inpDob','inpTob','inpPlace','inpLat','inpLon'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('inpOffset').value='5.5';
+  const cd=document.getElementById('coordsDisplay');
+  cd.className='coords-display'; cd.textContent='Enter place and click Locate';
+  document.getElementById('results').style.display='none';
+  chatContext=null; chatHistory=[];
+  document.getElementById('chatMessages').innerHTML=`<div class="chat-msg bot">
+    <span class="te-msg">నమస్కారం! 🙏 జాతకం లెక్కించిన తర్వాత అడగవచ్చు.</span></div>`;
+  showToast('✅ వివరాలు క్లియర్ అయ్యాయి / Form cleared');
+}
+
 function showToast(msg,isErr=false){
   const t=document.getElementById('toast');
   t.textContent=msg;
@@ -1317,5 +1342,20 @@ function showToast(msg,isErr=false){
 // Init Panchang on load
 renderPanchang();
 </script>
+
+<footer style="text-align:center;padding:20px 16px 28px;border-top:1px solid rgba(212,168,67,.15);
+  margin-top:10px;font-size:11px;color:var(--subtext);line-height:2">
+  <div style="font-family:'Noto Sans Telugu',serif;font-size:12px;color:var(--gold);margin-bottom:4px">
+    🌟 సూర్య జ్యోతిష్యం
+  </div>
+  <div>
+    © <span id="cpYear"></span> Surya Jyothishyam · All Rights Reserved
+  </div>
+  <div style="margin-top:3px;font-size:10px;opacity:.6">
+    Vedic Astrology · పంచాంగం · జాతకం · Built with ❤️ for Telugu Community
+  </div>
+</footer>
+<script>document.getElementById('cpYear').textContent=new Date().getFullYear();</script>
+
 </body>
 </html>
