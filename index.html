@@ -593,8 +593,7 @@ function addLog(type,msg){
 // ══════════════════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════════════════
-const GEMINI_KEY = 'AIzaSyAQ.Ab8RN6J7EL091LHqdi8au2ic4IsOXzg3QivX4r6y9kKwS0myqw';
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`;
+const AI_ENDPOINT = '/api/groq-chat'; // proxied via Netlify Function → Gemini
 
 const RASHIS = [
   {num:1, te:'మేషం',      en:'Aries',       abbr:'Ar'},
@@ -1056,9 +1055,9 @@ Give a structured reading with these sections (Telugu text first, English in bra
 **శుభ సమయాలు / Auspicious Guidance** - Key advice (1-2 lines)
 Keep each section concise and practical.`;
   try{
-    const res=await fetch(GEMINI_ENDPOINT,{
+    const res=await fetch(AI_ENDPOINT,{
       method:'POST',
-      headers:{'Authorization':`Bearer ${GEMINI_KEY}`,'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'gemini-1.5-flash',messages:[{role:'user',content:prompt}],max_tokens:1200,temperature:0.7})
     });
     const json=await res.json().catch(()=>({}));
@@ -1117,9 +1116,9 @@ async function sendChat(){
   if(chatHistory.length>10) chatHistory=chatHistory.slice(-10);
 
   try{
-    const res=await fetch(GEMINI_ENDPOINT,{
+    const res=await fetch(AI_ENDPOINT,{
       method:'POST',
-      headers:{'Authorization':`Bearer ${GEMINI_KEY}`,'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'gemini-1.5-flash',
         messages:[{role:'user',content:systemPrompt+'\n\nUser: '+q}],
