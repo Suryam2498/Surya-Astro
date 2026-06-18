@@ -17,12 +17,12 @@ exports.handler = async (event) => {
     };
   }
 
-  const apiKey = process.env.GROQ_API_KEY1;
+  const apiKey = process.env.GROQ_API_KEY1 || process.env.GROQ_API_KEY;
   if (!apiKey) {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: "Server is missing GROQ_API_KEY" })
+      body: JSON.stringify({ error: "Server is missing GROQ_API_KEY1 or GROQ_API_KEY" })
     };
   }
 

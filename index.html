@@ -1048,10 +1048,13 @@ Keep each section concise and practical.`;
     const res=await fetch(GROQ_ENDPOINT,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:1200,temperature:0.7})
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:500,temperature:0.7})
     });
-    if(!res.ok) throw new Error('AI service unavailable');
-    const json=await res.json();
+    const json=await res.json().catch(()=>({}));
+    if(!res.ok){
+      const errMsg=json?.error?.message||json?.error||`AI service error (${res.status})`;
+      return `AI service unavailable: ${String(errMsg).replace(/[<>]/g,'')}`;
+    }
     return json.choices?.[0]?.message?.content||null;
   }catch(e){return null;}
 }
@@ -1109,11 +1112,14 @@ async function sendChat(){
       body:JSON.stringify({
         model:'llama-3.3-70b-versatile',
         messages:[{role:'system',content:systemPrompt},...chatHistory],
-        max_tokens:600,temperature:0.7
+        max_tokens:300,temperature:0.7
       })
     });
-    if(!res.ok) throw new Error('Chat service unavailable');
-    const json=await res.json();
+    const json=await res.json().catch(()=>({}));
+    if(!res.ok){
+      const errMsg=json?.error?.message||json?.error||`Chat service error (${res.status})`;
+      throw new Error(String(errMsg).replace(/[<>]/g,''));
+    }
     const reply=json.choices?.[0]?.message?.content||'క్షమించండి, సమాధానం అందలేదు. (Sorry, no response.)';
     chatHistory.push({role:'assistant',content:reply});
     bumpStat('chats'); addLog('chat','Chatbot message sent');
@@ -1121,7 +1127,7 @@ async function sendChat(){
     appendChatMsg(reply,'bot');
   }catch(e){
     document.getElementById('chatTyping').style.display='none';
-    appendChatMsg('నెట్‌వర్క్ లోపం జరిగింది. (Network error.)', 'bot');
+    appendChatMsg(`సర్వీస్ లోపం: ${String(e?.message||'Network error.')}`, 'bot');
   }
   scrollChat();
 }
