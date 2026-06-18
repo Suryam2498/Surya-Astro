@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>సూర్య జ్యోతిష్యం | Surya Jyothishyam</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+    :root {
+      --bg:#0a0a14; --surface:#11112a; --surface2:#1a1a3a; --surface3:#22224a;
+      --gold:#d4a843; --gold2:#f0c060; --gold-dim:rgba(212,168,67,.15);
+      --text:#e8e0d0; --subtext:#9090b0; --border:rgba(212,168,67,.25);
+      --red:#e05555; --green:#55b055; --cyan:#5bc8d8; --purple:#a060e0;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+      background-image:url('bg-astrology.jpg');
+      background-size:cover;
+      background-position:center;
+      background-attachment:fixed;
+      background-repeat:no-repeat}
+    body::before{content:'';position:fixed;inset:0;background:rgba(10,10,20,.7);pointer-events:none;z-index:-1}
+
+    /* ── HEADER ── */
+    .header{max-width:1200px;margin:0 auto;padding:14px 20px 0}
+    .header-banner{display:block;width:100%;height:auto;max-height:300px;
+      border-radius:14px;border:1px solid var(--border);box-shadow:0 12px 34px rgba(0,0,0,.45)}
+    
+    /* ── ANIMATED ZODIAC ELEMENTS ── */
+    .sidebar-float-elem{position:absolute;opacity:.15;pointer-events:none;font-size:32px;
+      animation:float-bounce 4s ease-in-out infinite}
+    .sidebar-float-elem:nth-child(1){top:20px;right:-40px;animation-delay:0s}
+    .sidebar-float-elem:nth-child(2){top:150px;right:-50px;animation-delay:1s;font-size:28px}
+    .sidebar-float-elem:nth-child(3){bottom:120px;right:-45px;animation-delay:2s}
+    .sidebar-float-elem:nth-child(4){top:80px;left:-50px;animation-delay:.5s;font-size:26px}
+    .sidebar-float-elem:nth-child(5){bottom:80px;left:-50px;animation-delay:1.5s}
+    
+    .mystical-particle{position:fixed;pointer-events:none;border-radius:50%;opacity:.08;z-index:0}
+    .mystical-particle.p1{width:80px;height:80px;top:15%;left:5%;animation:float-drift 15s ease-in-out infinite;
+      box-shadow:inset 0 0 30px rgba(212,168,67,.4)}
+    .mystical-particle.p2{width:120px;height:120px;top:60%;right:3%;animation:float-drift 18s ease-in-out infinite reverse;
+      box-shadow:inset 0 0 40px rgba(102,200,255,.3)}
+    .mystical-particle.p3{width:60px;height:60px;bottom:20%;left:15%;animation:float-drift 20s ease-in-out infinite;
+      box-shadow:inset 0 0 20px rgba(160,96,224,.3)}
+    
+    @keyframes float-bounce{0%,100%{transform:translateY(0px)}50%{transform:translateY(-20px)}}
+    @keyframes float-drift{0%,100%{transform:translateX(0px) translateY(0px)}
+      25%{transform:translateX(15px) translateY(-15px)}50%{transform:translateX(0px) translateY(-25px)}
+      75%{transform:translateX(-15px) translateY(-15px)}}
+
+    /* ── PAGE LAYOUT ── */
+    .page-wrap{display:grid;grid-template-columns:290px minmax(0,1fr);grid-template-areas:'sidebar main';gap:20px;
+      max-width:1200px;margin:0 auto;padding:24px 20px;align-items:start}
+    .main-col{min-width:0;grid-area:main;align-self:start}
+
+    /* ── PANCHANG SIDEBAR ── */
+    .panchang-sidebar{position:sticky;top:20px;grid-area:sidebar;align-self:start;width:100%}
+    .panchang-card{background:var(--surface);border:1px solid var(--border);
+      border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+    .panchang-header{background:linear-gradient(135deg,rgba(212,168,67,.2),rgba(100,50,150,.2));
+      padding:14px 16px;border-bottom:1px solid var(--border);text-align:center}
+    .panchang-header h3{font-family:'Noto Sans Telugu',serif;font-size:16px;color:var(--gold2);
+      margin-bottom:2px}
+    .panchang-header p{font-size:10px;color:var(--subtext);letter-spacing:1px;font-family:'Cinzel',serif}
+    .panchang-date{font-size:11px;color:var(--gold);margin-top:6px;font-weight:600}
+    .panch-body{padding:14px}
+    .panch-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;
+      border-bottom:1px solid rgba(212,168,67,.1)}
+    .panch-item:last-child{border-bottom:none}
+    .panch-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center;margin-top:1px}
+    .panch-label{font-family:'Noto Sans Telugu',serif;font-size:11px;color:var(--subtext);line-height:1.3}
+    .panch-label span{font-size:9px;color:var(--subtext);opacity:.7;font-family:'Inter',sans-serif;
+      display:block;letter-spacing:.04em}
+    .panch-value{font-family:'Noto Sans Telugu',serif;font-size:13px;color:var(--gold2);
+      font-weight:600;line-height:1.3}
+    .panch-value .en{font-family:'Inter',sans-serif;font-size:10px;color:var(--subtext);
+      font-weight:400;display:block}
+    .rahu-time{font-size:12px;color:var(--red);font-weight:700}
+    .gulika-time{font-size:12px;color:var(--purple);font-weight:700}
+
+    /* ── FORM ── */
+    .form-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+      padding:24px;margin-bottom:20px;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+    .form-title{font-family:'Noto Sans Telugu',serif;font-size:15px;color:var(--gold);
+      margin-bottom:20px;display:flex;align-items:center;gap:10px}
+    .form-title::after{content:'';flex:1;height:1px;background:var(--border)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+    .form-group{display:flex;flex-direction:column;gap:5px}
+    .form-group.full{grid-column:1/-1}
+    .form-group.two{grid-column:span 2}
+    .latlon-row{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+      color:var(--gold);display:flex;align-items:center;gap:5px}
+    label .te{font-family:'Noto Sans Telugu',serif;text-transform:none;font-size:11px;color:var(--subtext)}
+    input,select{background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+      padding:9px 12px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;
+      transition:border-color .15s,box-shadow .15s;outline:none;width:100%}
+    input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,168,67,.15)}
+    input::placeholder{color:var(--subtext)}
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.6) sepia(1) saturate(2) hue-rotate(5deg);cursor:pointer}
+    .place-row{display:flex;gap:8px}
+    .place-row input{flex:1}
+    .btn-geocode{padding:9px 14px;background:var(--surface3);border:1px solid var(--border);
+      border-radius:8px;color:var(--gold);font-size:11px;font-weight:700;cursor:pointer;
+      white-space:nowrap;transition:all .15s;flex-shrink:0}
+    .btn-geocode:hover{background:var(--gold-dim)}
+    .coords-display{font-size:10px;color:var(--subtext);margin-top:3px;min-height:14px}
+    .coords-display.ok{color:var(--green)} .coords-display.err{color:var(--red)}
+    .btn-calculate{margin-top:18px;width:100%;padding:10px 14px;
+      background:linear-gradient(135deg,#6b3a00,#d4a843,#6b3a00);background-size:200% 100%;
+      border:none;border-radius:10px;color:#000;font-size:12px;font-weight:700;
+      font-family:'Cinzel',serif;letter-spacing:1.4px;cursor:pointer;transition:background-position .3s,transform .1s}
+    .btn-calculate:hover{background-position:100% 0;transform:translateY(-1px)}
+    .btn-calculate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+    /* ── RESULTS ── */
+    #results{display:none}
+    .section-header{font-family:'Noto Sans Telugu',serif;font-size:14px;color:var(--gold);
+      margin-bottom:14px;padding-bottom:7px;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:8px}
+    .section-header .en{font-family:'Cinzel',serif;font-size:10px;color:var(--subtext);letter-spacing:2px}
+    .section-icon{width:26px;height:26px;object-fit:contain;display:inline-block;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
+
+    /* ── SUMMARY CARDS ── */
+    .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+    .summary-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+      padding:14px 12px;text-align:center;position:relative;overflow:hidden}
+    .summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+    .summary-card .card-icon{font-size:20px;margin-bottom:6px}
+    .summary-card .card-label-te{font-family:'Noto Sans Telugu',serif;font-size:11px;color:var(--subtext);margin-bottom:1px}
+    .summary-card .card-label-en{font-size:9px;color:var(--subtext);opacity:.7;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+    .summary-card .card-value{font-size:13px;font-weight:700;color:var(--gold2)}
+    .summary-card .card-value .te{font-family:'Noto Sans Telugu',serif;display:block;font-size:12px}
+    .summary-card .card-sub{font-size:10px;color:var(--subtext);margin-top:3px}
+
+    /* ── RESULTS LAYOUT ── */
+    .results-layout{display:grid;grid-template-columns:340px 1fr;gap:18px;margin-bottom:20px;align-items:start}
+
+    /* ── SOUTH INDIAN CHART ── */
+    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px}
+    .chart-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,80px);
+      border:2px solid var(--gold);border-radius:4px;overflow:hidden;position:relative}
+    .chart-cell{border:1px solid rgba(212,168,67,.35);padding:4px;display:flex;flex-direction:column;
+      font-size:9px;background:var(--surface2)}
+    .chart-cell.lagna-cell{background:rgba(212,168,67,.1)}
+    .chart-center{border:1px solid rgba(212,168,67,.35);background:rgba(5,5,15,.7);
+      grid-column:2/4;grid-row:2/4;display:flex;align-items:center;justify-content:center;
+      flex-direction:column;gap:4px}
+    .chart-center-text{text-align:center;color:var(--gold);opacity:.5}
+    .chart-center-text div:first-child{font-size:22px}
+    .chart-center-text div:last-child{font-size:8px;font-family:'Cinzel',serif;letter-spacing:1px}
+    .sign-label{font-family:'Noto Sans Telugu',serif;font-size:8.5px;color:var(--gold);opacity:.85;line-height:1.2}
+    .sign-en{font-size:7.5px;color:var(--subtext);opacity:.7}
+    .planets-in-cell{margin-top:2px;display:flex;flex-wrap:wrap;gap:2px}
+    .planet-badge{font-size:8.5px;font-weight:700;padding:1px 3px;border-radius:2px;
+      background:var(--surface3);color:var(--gold2);border:1px solid rgba(212,168,67,.3);line-height:1.4}
+    .planet-badge.lagna{background:var(--gold);color:#000;font-size:8px}
+    .planet-badge.sun{color:#ffa040;border-color:rgba(255,160,64,.4)}
+    .planet-badge.moon{color:#c0d8ff;border-color:rgba(192,216,255,.4)}
+    .planet-badge.mars{color:#ff6060;border-color:rgba(255,96,96,.4)}
+    .planet-badge.mercury{color:#60ff80;border-color:rgba(96,255,128,.4)}
+    .planet-badge.jupiter{color:#ffdd44;border-color:rgba(255,221,68,.4)}
+    .planet-badge.venus{color:#ff90c0;border-color:rgba(255,144,192,.4)}
+    .planet-badge.saturn{color:#a0a0c0;border-color:rgba(160,160,192,.4)}
+    .planet-badge.rahu{color:#c080ff;border-color:rgba(192,128,255,.4)}
+    .planet-badge.ketu{color:#ff9944;border-color:rgba(255,153,68,.4)}
+
+    /* ── DATA CARD / TABLE ── */
+    .data-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px}
+    table{width:100%;border-collapse:collapse;font-size:11.5px}
+    thead th{background:var(--surface2);padding:8px 10px;text-align:left;font-size:9.5px;
+      font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);
+      border-bottom:1px solid var(--border)}
+    tbody td{padding:8px 10px;border-bottom:1px solid rgba(212,168,67,.08);vertical-align:middle}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr:hover td{background:var(--gold-dim)}
+    .te-cell{font-family:'Noto Sans Telugu',serif;font-size:11px}
+    .mono{font-family:monospace;font-size:10.5px;color:var(--cyan)}
+    .badge-sign{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9.5px;
+      font-weight:700;background:var(--surface3);color:var(--gold2);border:1px solid var(--border)}
+
+    /* ── DASHA ── */
+    .dasha-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+    .dasha-running{background:var(--gold-dim) !important;border-color:var(--gold) !important}
+    .dasha-running td{color:var(--gold2) !important}
+    .antardasha-table td{padding:6px 10px}
+
+    /* ── AI CARD ── */
+    .ai-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      padding:20px;margin-bottom:20px;position:relative;overflow:hidden}
+    .ai-card::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse at top left,rgba(100,60,200,.08) 0%,transparent 60%);pointer-events:none}
+    .ai-content{line-height:1.85;color:var(--text);font-size:13px}
+    .ai-content p{margin-bottom:10px}
+    .ai-loading{display:flex;align-items:center;gap:10px;color:var(--subtext);font-size:12px}
+    .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);
+      border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── DOWNLOAD ── */
+    .download-bar{display:flex;justify-content:center;gap:14px;margin-bottom:30px}
+    .btn-download{padding:11px 24px;background:linear-gradient(135deg,#4a1a00,#d4a843);border:none;
+      border-radius:10px;color:#fff;font-size:13px;font-weight:700;font-family:'Cinzel',serif;
+      letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:opacity .15s,transform .1s}
+    .btn-download:hover{opacity:.9;transform:translateY(-1px)}
+    .btn-download:disabled{opacity:.5;cursor:not-allowed}
+
+    /* ── CHATBOT ── */
+    .chat-fab{position:fixed;bottom:20px;right:20px;z-index:1000;
+      background:transparent;border:none;padding:0;color:#fff;font-size:12px;font-weight:700;cursor:pointer;
+      box-shadow:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+      transition:transform .15s,filter .15s;font-family:'Cinzel',serif;line-height:1.15}
+    .chat-fab:hover{transform:translateY(-2px);filter:drop-shadow(0 8px 20px rgba(0,0,0,.45))}
+    .chat-fab.hidden{opacity:0;pointer-events:none;transform:translateY(8px)}
+    .chat-avatar-circle{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      background:transparent;border:2px solid rgba(212,168,67,.55);position:relative;animation:fabBob 2.6s ease-in-out infinite}
+    .chat-avatar-circle::before{content:'';position:absolute;inset:-8px;border-radius:50%;
+      border:2px solid rgba(212,168,67,.35);animation:fabPulse 2.1s ease-out infinite;pointer-events:none}
+    .chat-avatar-circle::after{content:'';position:absolute;top:4px;right:6px;width:9px;height:9px;border-radius:50%;
+      background:#66f5ff;box-shadow:0 0 14px rgba(102,245,255,.8);animation:fabBeacon 1.2s ease-in-out infinite}
+    .chat-icon{width:90px;height:90px;object-fit:contain;display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,.5))}
+    .chat-icon.small{width:20px;height:20px}
+    .chat-fab-label{font-family:'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;font-size:14px;
+      font-weight:800;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6);animation:labelGlow 1.9s ease-in-out infinite}
+    .chat-fab.hidden .chat-avatar-circle,.chat-fab.hidden .chat-fab-label{animation:none}
+    .chat-fab.hidden .chat-avatar-circle::before,.chat-fab.hidden .chat-avatar-circle::after{animation:none}
+    .chat-header-title{display:flex;align-items:center;gap:8px}
+    .chat-panel{position:fixed;bottom:112px;right:20px;width:420px;height:min(560px,calc(100vh - 132px));z-index:999;
+      background:var(--surface);border:1px solid var(--border);border-radius:16px;
+      box-shadow:0 12px 48px rgba(0,0,0,.6);display:none;flex-direction:column;overflow:hidden}
+    .chat-panel.open{display:flex}
+    .chat-panel-header{background:linear-gradient(135deg,rgba(107,0,212,.3),rgba(212,168,67,.2));
+      padding:18px 20px;display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid var(--border)}
+    .chat-panel-header h4{font-family:'Cinzel',serif;font-size:20px;color:var(--gold2);letter-spacing:1.5px}
+    .chat-panel-header p{font-size:10px;color:var(--subtext)}
+    .chat-close{background:none;border:none;color:var(--subtext);font-size:18px;
+      cursor:pointer;padding:0;line-height:1}
+    .chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;
+      scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+    .chat-msg{max-width:85%;padding:9px 12px;border-radius:10px;font-size:12px;line-height:1.6}
+    .chat-msg.user{align-self:flex-end;background:rgba(212,168,67,.15);border:1px solid rgba(212,168,67,.3);color:var(--text)}
+    .chat-msg.bot{align-self:flex-start;background:var(--surface2);border:1px solid var(--border);color:var(--text)}
+    .chat-msg.bot .te-msg{font-family:'Noto Sans Telugu',serif}
+    .chat-typing{align-self:flex-start;padding:9px 12px;background:var(--surface2);
+      border:1px solid var(--border);border-radius:10px;display:none}
+    .typing-dots span{display:inline-block;width:6px;height:6px;background:var(--gold);
+      border-radius:50%;margin:0 2px;animation:bounce .8s infinite}
+    .typing-dots span:nth-child(2){animation-delay:.15s}
+    .typing-dots span:nth-child(3){animation-delay:.3s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+    .chat-input-area{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px}
+    .chat-input-area input{flex:1;background:var(--surface2);border:1px solid var(--border);
+      border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;outline:none}
+    .chat-input-area input:focus{border-color:var(--gold)}
+    .chat-send{padding:8px 14px;background:var(--gold);border:none;border-radius:8px;
+      color:#000;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+    .chat-send:hover{background:var(--gold2)}
+    .chat-suggestions{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px}
+    .chat-sugg{font-size:10px;padding:4px 10px;background:var(--surface3);border:1px solid var(--border);
+      border-radius:20px;color:var(--gold);cursor:pointer;font-family:'Noto Sans Telugu',serif}
+    .chat-sugg:hover{background:var(--gold-dim)}
+
+    @keyframes fabBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    @keyframes fabPulse{0%{transform:scale(.92);opacity:.85}70%{transform:scale(1.16);opacity:0}100%{opacity:0}}
+    @keyframes fabBeacon{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.65);opacity:.55}}
+    @keyframes labelGlow{0%,100%{opacity:.9;transform:translateY(0)}50%{opacity:1;transform:translateY(-1px)}}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:var(--surface2);border:1px solid var(--border);padding:10px 20px;border-radius:8px;
+      font-size:12px;color:var(--text);z-index:9999;opacity:0;transition:opacity .3s;
+      box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap}
+    .toast.show{opacity:1}
+
+    @media(max-width:900px){
+      .header{padding:10px 12px 0}
+      .header-banner{max-height:190px;border-radius:10px}
+      .page-wrap{grid-template-columns:1fr;grid-template-areas:'main' 'sidebar'}
+      .panchang-sidebar{position:static}
+      .form-grid{grid-template-columns:1fr 1fr}
+      .form-group.full{grid-column:1/-1}
+      .summary-grid{grid-template-columns:1fr 1fr}
+      .results-layout{grid-template-columns:1fr}
+      .dasha-grid{grid-template-columns:1fr}
+      .chat-panel{width:calc(100vw - 24px);right:12px;bottom:98px;height:min(540px,calc(100vh - 116px))}
+      .chat-fab{right:12px;bottom:10px}
+      .chat-avatar-circle{width:106px;height:106px}
+      .chat-icon{width:78px;height:78px}
+      .chat-fab-label{font-size:12px}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .chat-avatar-circle,.chat-avatar-circle::before,.chat-avatar-circle::after,.chat-fab-label{animation:none !important}
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <img src="header.png" alt="Surya Jyothishyam Header" class="header-banner">
+  <div id="userBar" style="display:none;justify-content:flex-end;align-items:center;gap:12px;
+    padding:8px 4px;font-size:12px;color:var(--subtext)">
+    <span style="font-family:'Noto Sans Telugu',serif">🙏 స్వాగతం, <strong style="color:var(--gold2)" id="userBarName"></strong></span>
+    <button onclick="doLogout()" style="padding:5px 14px;background:var(--surface2);
+      border:1px solid var(--border);border-radius:6px;color:var(--subtext);font-size:11px;
+      cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif"
+      onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--subtext)'">
+      Logout ↩
+    </button>
+  </div>
+</header>
+
+<script>
+// Auth guard + user bar
+(function(){
+  const u = sessionStorage.getItem('surya_user');
+  if(!u){ window.location.href='login.html'; return; }
+  const bar = document.getElementById('userBar');
+  document.getElementById('userBarName').textContent = u;
+  bar.style.display = 'flex';
+})();
+function doLogout(){
+  sessionStorage.removeItem('surya_user');
+  window.location.href = 'login.html';
+}
+// Activity tracking helpers
+function bumpStat(key){
+  const s=JSON.parse(localStorage.getItem('surya_stats')||'{}');
+  s[key]=(s[key]||0)+1; localStorage.setItem('surya_stats',JSON.stringify(s));
+}
+function addLog(type,msg){
+  const u=sessionStorage.getItem('surya_user')||'unknown';
+  const logs=JSON.parse(localStorage.getItem('surya_activity_log')||'[]');
+  logs.unshift({type,msg:`${u}: ${msg}`,ts:new Date().toISOString()});
+  if(logs.length>200)logs.pop();
+  localStorage.setItem('surya_activity_log',JSON.stringify(logs));
+  // bump user calc count
+  if(type==='calc'){
+    const users=JSON.parse(localStorage.getItem('surya_users')||'{}');
+    const key=u.toLowerCase(); if(users[key]){users[key].calcs=(users[key].calcs||0)+1;users[key].lastActive=new Date().toISOString();}
+    localStorage.setItem('surya_users',JSON.stringify(users));
+  }
+}
+</script>
+
+<div class="page-wrap">
+
+  <!-- ══ MAIN COLUMN ══ -->
+  <div class="main-col">
+
+    <!-- Form -->
+    <div class="form-card">
+      <div class="form-title">📝 జన్మ వివరాలు <span style="font-family:Cinzel;font-size:10px;color:var(--subtext);letter-spacing:2px">BIRTH DETAILS</span></div>
+      <div class="form-grid">
+
+        <div class="form-group full">
+          <label>👤 పేరు <span class="te">/ Name</span></label>
+          <input type="text" id="inpName" placeholder="పూర్తి పేరు / Full name">
+        </div>
+
+        <div class="form-group">
+          <label>📅 జన్మ తేది <span class="te">/ Date of Birth</span></label>
+          <input type="date" id="inpDob">
+        </div>
+
+        <div class="form-group">
+          <label>⏰ జన్మ సమయం <span class="te">/ Time of Birth</span></label>
+          <input type="time" id="inpTob" step="60">
+        </div>
+
+        <div class="form-group">
+          <label>🌐 UTC Offset</label>
+          <select id="inpOffset">
+            <option value="5.5" selected>+05:30 IST India</option>
+            <option value="0">+00:00 UTC</option>
+            <option value="1">+01:00 CET</option>
+            <option value="3.5">+03:30 IRST</option>
+            <option value="4">+04:00 GST</option>
+            <option value="4.5">+04:30 AFT</option>
+            <option value="6">+06:00 BST</option>
+            <option value="8">+08:00 CST</option>
+            <option value="9">+09:00 JST</option>
+            <option value="-5">-05:00 EST</option>
+            <option value="-6">-06:00 CST</option>
+            <option value="-8">-08:00 PST</option>
+          </select>
+        </div>
+
+        <div class="form-group two">
+          <label>📍 జన్మ స్థలం <span class="te">/ Place of Birth</span></label>
+          <div class="place-row">
+            <input type="text" id="inpPlace" placeholder="e.g. Hyderabad, Telangana, India">
+            <button class="btn-geocode" onclick="geocodePlace()">🔍 Locate</button>
+          </div>
+          <div class="coords-display" id="coordsDisplay">Enter place and click Locate</div>
+        </div>
+
+        <div class="latlon-row">
+          <div class="form-group">
+            <label>🗺️ Latitude <span class="te">/ అక్షాంశం</span></label>
+            <input type="number" id="inpLat" placeholder="17.3850" step="0.0001" min="-90" max="90">
+          </div>
+
+          <div class="form-group">
+            <label>🗺️ Longitude <span class="te">/ రేఖాంశం</span></label>
+            <input type="number" id="inpLon" placeholder="78.4867" step="0.0001" min="-180" max="180">
+          </div>
+        </div>
+
+      </div>
+      <button class="btn-calculate" onclick="calculate()" id="btnCalc">
+        ✨ జాతకం లెక్కించండి — CALCULATE HOROSCOPE
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+
+      <!-- Summary Cards -->
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="card-icon">⭐</div>
+          <div class="card-label-te">జన్మ నక్షత్రం</div>
+          <div class="card-label-en">Birth Star / Nakshatra</div>
+          <div class="card-value" id="sNakshatra">—</div>
+          <div class="card-sub" id="sNakshatraSub">Pada —</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-icon">🏠</div>
+          <div class="card-label-te">లగ్నం</div>
+          <div class="card-label-en">Ascendant / Lagna</div>
+          <div class="card-value" id="sLagna">—</div>
+          <div class="card-sub" id="sLagnaSub">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-icon">🌙</div>
+          <div class="card-label-te">రాశి / చంద్ర రాశి</div>
+          <div class="card-label-en">Moon Sign / Rashi</div>
+          <div class="card-value" id="sRashi">—</div>
+          <div class="card-sub" id="sRashiSub">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-icon">⏳</div>
+          <div class="card-label-te">నడుస్తున్న దశ</div>
+          <div class="card-label-en">Running Dasha</div>
+          <div class="card-value" id="sDasha">—</div>
+          <div class="card-sub" id="sDashaSub">—</div>
+        </div>
+      </div>
+
+      <!-- Chart + Planets -->
+      <div class="results-layout">
+        <div class="chart-card">
+          <div class="section-header">లగ్న చక్రం <span class="en">LAGNA CHART · SOUTH INDIAN</span></div>
+          <div class="chart-grid" id="lagnaChart"></div>
+          <div style="margin-top:10px;font-size:9.5px;color:var(--subtext);line-height:1.9">
+            <span style="color:var(--gold);font-weight:700">La</span>=Lagna &nbsp;
+            <span style="color:#ffa040">Su</span>=Sun &nbsp;
+            <span style="color:#c0d8ff">Mo</span>=Moon &nbsp;
+            <span style="color:#ff6060">Ma</span>=Mars &nbsp;
+            <span style="color:#60ff80">Bu</span>=Mercury &nbsp;
+            <span style="color:#ffdd44">Gu</span>=Jupiter<br>
+            <span style="color:#ff90c0">Ve</span>=Venus &nbsp;
+            <span style="color:#a0a0c0">Sa</span>=Saturn &nbsp;
+            <span style="color:#c080ff">Ra</span>=Rahu &nbsp;
+            <span style="color:#ff9944">Ke</span>=Ketu
+          </div>
+        </div>
+
+        <div class="data-card">
+          <div class="section-header">గ్రహ స్థానాలు <span class="en">PLANETARY POSITIONS</span></div>
+          <table>
+            <thead><tr><th>గ్రహం / Planet</th><th>రాశి / Sign</th><th>స్థానం</th><th>నక్షత్రం / Star</th></tr></thead>
+            <tbody id="planetBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Dasha -->
+      <div class="data-card" style="margin-bottom:20px">
+        <div class="section-header">దశ — అంతర్దశ <span class="en">VIMSHOTTARI DASHA · ANTARDASHA</span></div>
+        <div class="dasha-grid">
+          <table id="dashaTable">
+            <thead><tr><th>మహాదశ / Mahadasha</th><th>ప్రారంభం</th><th>ముగింపు</th><th>వ్యవధి</th></tr></thead>
+            <tbody id="dashaBody"></tbody>
+          </table>
+          <div>
+            <div style="font-size:10px;color:var(--gold);margin-bottom:8px;font-family:'Noto Sans Telugu',serif">
+              నడుస్తున్న దశ అంతర్దశలు / Current Antardasha
+            </div>
+            <table class="antardasha-table">
+              <thead><tr><th>అంతర్దశ</th><th>ప్రారంభం</th><th>ముగింపు</th></tr></thead>
+              <tbody id="antarBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Interpretation -->
+      <div class="ai-card">
+        <div class="section-header"><img src="chatbot-icon.png" alt="Assistant icon" class="section-icon">జ్యోతిష్య వివరణ</div>
+        <div class="ai-loading" id="aiLoading"><div class="spinner"></div><span>AI వివరణ తయారవుతోంది… / Generating reading…</span></div>
+        <div class="ai-content" id="aiContent" style="display:none"></div>
+      </div>
+
+      <!-- Download -->
+      <div class="download-bar">
+        <button class="btn-download" onclick="downloadPDF()" id="btnDownload">
+          📥 PDF డౌన్లోడ్ — Download Horoscope PDF
+        </button>
+      </div>
+
+    </div><!-- /results -->
+  </div><!-- /main-col -->
+
+  <!-- ══ PANCHANG SIDEBAR ══ -->
+  <aside class="panchang-sidebar" style="position:relative">
+    <div class="sidebar-float-elem">⭐</div>
+    <div class="sidebar-float-elem">✨</div>
+    <div class="sidebar-float-elem">🌙</div>
+    <div class="sidebar-float-elem">☄️</div>
+    <div class="sidebar-float-elem">💫</div>
+    <div class="panchang-card">
+      <div class="panchang-header">
+        <h3>🗓️ ఈరోజు పంచాంగం</h3>
+        <p>TODAY'S PANCHANG</p>
+        <div class="panchang-date" id="panchDate">—</div>
+      </div>
+      <div class="panch-body" id="panchBody">
+        <div style="text-align:center;padding:20px;color:var(--subtext);font-size:11px">Loading…</div>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /page-wrap -->
+
+<!-- ══ MYSTICAL PARTICLES ══ -->
+<div class="mystical-particle p1"></div>
+<div class="mystical-particle p2"></div>
+<div class="mystical-particle p3"></div>
+
+<!-- ══ CHATBOT ══ -->
+<button class="chat-fab" onclick="toggleChat()" id="chatFab">
+  <span class="chat-avatar-circle"><img src="chatbot-icon.png" alt="Chatbot icon" class="chat-icon"></span>
+  <span class="chat-fab-label">Chat With Me</span>
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-panel-header">
+    <div>
+      <h4 class="chat-header-title"><img src="chatbot-icon.png" alt="Assistant icon" class="chat-icon small"><span>Astrology Assistant</span></h4>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">
+      <span class="te-msg">శుభం భూయాత్ 🙌 నేను మీ జ్యోతిష్య సహాయకుణ్ణి. మీ జాతకం లెక్కించిన తర్వాత, మీ నక్షత్రం, దశ, గ్రహ స్థానాల గురించి అడగవచ్చు.</span><br>
+      <span style="font-size:10px;color:var(--subtext)">Namaskaram! I'm your astrology assistant. Calculate your horoscope first, then ask me anything about your chart.</span>
+    </div>
+  </div>
+  <div class="chat-suggestions" id="chatSugg">
+    <span class="chat-sugg" onclick="sendSuggestion(this)">నా నక్షత్రం ఫలితమేమిటి?</span>
+    <span class="chat-sugg" onclick="sendSuggestion(this)">నడుస్తున్న దశ ఎలా ఉంది?</span>
+    <span class="chat-sugg" onclick="sendSuggestion(this)">నా లగ్నం స్వభావం?</span>
+    <span class="chat-sugg" onclick="sendSuggestion(this)">వివాహ యోగం ఎప్పుడు?</span>
+  </div>
+  <div class="chat-typing" id="chatTyping"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="మీ ప్రశ్న అడగండి… / Ask your question…"
+      onkeydown="if(event.key==='Enter') sendChat()">
+    <button class="chat-send" onclick="sendChat()">పంపు ➤</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════
+const GROQ_KEY = '';
+
+const RASHIS = [
+  {num:1, te:'మేషం',      en:'Aries',       abbr:'Ar'},
+  {num:2, te:'వృషభం',     en:'Taurus',      abbr:'Ta'},
+  {num:3, te:'మిథునం',    en:'Gemini',      abbr:'Ge'},
+  {num:4, te:'కర్కాటకం',  en:'Cancer',      abbr:'Ca'},
+  {num:5, te:'సింహం',     en:'Leo',         abbr:'Le'},
+  {num:6, te:'కన్య',      en:'Virgo',       abbr:'Vi'},
+  {num:7, te:'తుల',       en:'Libra',       abbr:'Li'},
+  {num:8, te:'వృశ్చికం',  en:'Scorpio',     abbr:'Sc'},
+  {num:9, te:'ధనుస్సు',   en:'Sagittarius', abbr:'Sg'},
+  {num:10,te:'మకరం',      en:'Capricorn',   abbr:'Cp'},
+  {num:11,te:'కుంభం',     en:'Aquarius',    abbr:'Aq'},
+  {num:12,te:'మీనం',      en:'Pisces',      abbr:'Pi'},
+];
+
+const NAKSHATRAS = [
+  {te:'అశ్విని',         en:'Ashwini',          lord:'Ketu'},
+  {te:'భరణి',            en:'Bharani',           lord:'Venus'},
+  {te:'కృత్తిక',         en:'Krittika',          lord:'Sun'},
+  {te:'రోహిణి',          en:'Rohini',            lord:'Moon'},
+  {te:'మృగశిర',          en:'Mrigashira',        lord:'Mars'},
+  {te:'ఆర్ద్ర',          en:'Ardra',             lord:'Rahu'},
+  {te:'పునర్వసు',        en:'Punarvasu',         lord:'Jupiter'},
+  {te:'పుష్యమి',         en:'Pushya',            lord:'Saturn'},
+  {te:'ఆశ్లేష',          en:'Ashlesha',          lord:'Mercury'},
+  {te:'మఘ',              en:'Magha',             lord:'Ketu'},
+  {te:'పూర్వ ఫల్గుణి',  en:'Purva Phalguni',    lord:'Venus'},
+  {te:'ఉత్తర ఫల్గుణి',  en:'Uttara Phalguni',   lord:'Sun'},
+  {te:'హస్త',            en:'Hasta',             lord:'Moon'},
+  {te:'చిత్త',           en:'Chitra',            lord:'Mars'},
+  {te:'స్వాతి',          en:'Swati',             lord:'Rahu'},
+  {te:'విశాఖ',           en:'Vishakha',          lord:'Jupiter'},
+  {te:'అనురాధ',          en:'Anuradha',          lord:'Saturn'},
+  {te:'జ్యేష్ఠ',         en:'Jyeshtha',          lord:'Mercury'},
+  {te:'మూల',             en:'Mula',              lord:'Ketu'},
+  {te:'పూర్వాషాఢ',       en:'Purva Ashadha',     lord:'Venus'},
+  {te:'ఉత్తరాషాఢ',       en:'Uttara Ashadha',    lord:'Sun'},
+  {te:'శ్రవణం',          en:'Shravana',          lord:'Moon'},
+  {te:'ధనిష్ఠ',          en:'Dhanishtha',        lord:'Mars'},
+  {te:'శతభిషం',          en:'Shatabhisha',       lord:'Rahu'},
+  {te:'పూర్వా భాద్రపద',  en:'Purva Bhadrapada',  lord:'Jupiter'},
+  {te:'ఉత్తర భాద్రపద',   en:'Uttara Bhadrapada', lord:'Saturn'},
+  {te:'రేవతి',           en:'Revati',            lord:'Mercury'},
+];
+
+const TITHIS = [
+  'పాడ్యమి','విదియ','తదియ','చవితి','పంచమి','షష్ఠి','సప్తమి','అష్టమి','నవమి','దశమి',
+  'ఏకాదశి','ద్వాదశి','త్రయోదశి','చతుర్దశి','పూర్ణిమ','పాడ్యమి','విదియ','తదియ','చవితి',
+  'పంచమి','షష్ఠి','సప్తమి','అష్టమి','నవమి','దశమి','ఏకాదశి','ద్వాదశి','త్రయోదశి',
+  'చతుర్దశి','అమావాస్య'
+];
+const TITHIS_EN = [
+  'Padyami','Vidiya','Tadiya','Chaviti','Panchami','Shashthi','Saptami','Ashtami','Navami','Dashami',
+  'Ekadashi','Dwadashi','Trayodashi','Chaturdashi','Purnima','Padyami','Vidiya','Tadiya','Chaviti',
+  'Panchami','Shashthi','Saptami','Ashtami','Navami','Dashami','Ekadashi','Dwadashi','Trayodashi',
+  'Chaturdashi','Amavasya'
+];
+const VARAS = ['ఆదివారం','సోమవారం','మంగళవారం','బుధవారం','గురువారం','శుక్రవారం','శనివారం'];
+const VARAS_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const VARAS_LORDS = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+const YOGAS_TE = ['విష్కుంభ','ప్రీతి','ఆయుష్మాన్','సౌభాగ్య','శోభన','అతిగండ','సుకర్మ','ధృతి','శూల','గండ','వృద్ధి','ధ్రువ','వ్యాఘాత','హర్షణ','వజ్ర','సిద్ధి','వ్యతీపాత','వరీయాన్','పరిఘ','శివ','సిద్ధ','సాధ్య','శుభ','శుక్ల','బ్రహ్మ','ఇంద్ర','వైధృతి'];
+const YOGAS_EN = ['Vishkumbha','Preeti','Ayushman','Saubhagya','Shobhana','Atiganda','Sukarna','Dhriti','Shula','Ganda','Vridhi','Dhruva','Vyaghata','Harshana','Vajra','Siddhi','Vyatipata','Variyan','Parigha','Shiva','Siddha','Sadhya','Subha','Shukla','Brahma','Indra','Vaidhriti'];
+const KARANAS_TE = ['బవ','బాలవ','కౌలవ','తైతుల','గరజ','వణిజ','విష్టి','శకుని','చతుష్పాద','నాగ','కింస్తుఘ్న'];
+const KARANAS_EN = ['Bava','Balava','Kaulava','Taitila','Garaja','Vanija','Vishti','Shakuni','Chatushpada','Naga','Kimstughna'];
+
+// Rahu Kalam slots by weekday (1.5h slot index from 6am, 8 slots)
+const RAHU_SLOTS  = [4, 1, 7, 5, 6, 3, 2]; // Sun=0..Sat=6
+const GULIKA_SLOTS= [7, 6, 5, 4, 3, 2, 1];
+
+const DASHA_ORDER = ['Ketu','Venus','Sun','Moon','Mars','Rahu','Jupiter','Saturn','Mercury'];
+const DASHA_YEARS = {Ketu:7,Venus:20,Sun:6,Moon:10,Mars:7,Rahu:18,Jupiter:16,Saturn:19,Mercury:17};
+const DASHA_TE = {Ketu:'కేతువు',Venus:'శుక్రుడు',Sun:'సూర్యుడు',Moon:'చంద్రుడు',
+                  Mars:'అంగారకుడు',Rahu:'రాహువు',Jupiter:'గురుడు',Saturn:'శని',Mercury:'బుధుడు'};
+
+const PLANETS_META = [
+  {key:'lagna',   te:'లగ్నం',      en:'Lagna',     abbr:'La', cls:'lagna'},
+  {key:'sun',     te:'సూర్యుడు',   en:'Sun',       abbr:'Su', cls:'sun'},
+  {key:'moon',    te:'చంద్రుడు',   en:'Moon',      abbr:'Mo', cls:'moon'},
+  {key:'mars',    te:'అంగారకుడు',  en:'Mars',      abbr:'Ma', cls:'mars'},
+  {key:'mercury', te:'బుధుడు',     en:'Mercury',   abbr:'Bu', cls:'mercury'},
+  {key:'jupiter', te:'గురుడు',     en:'Jupiter',   abbr:'Gu', cls:'jupiter'},
+  {key:'venus',   te:'శుక్రుడు',   en:'Venus',     abbr:'Ve', cls:'venus'},
+  {key:'saturn',  te:'శని',        en:'Saturn',    abbr:'Sa', cls:'saturn'},
+  {key:'rahu',    te:'రాహువు',     en:'Rahu',      abbr:'Ra', cls:'rahu'},
+  {key:'ketu',    te:'కేతువు',     en:'Ketu',      abbr:'Ke', cls:'ketu'},
+];
+
+// South Indian layout: [row][col] = sign(1-12) or 0(center)
+const CHART_LAYOUT = [
+  [12, 1,  2,  3],
+  [11, 0,  0,  4],
+  [10, 0,  0,  5],
+  [ 9, 8,  7,  6],
+];
+
+// ══════════════════════════════════════════════════════
+// ASTRONOMY
+// ══════════════════════════════════════════════════════
+const toRad = d => d*Math.PI/180;
+const toDeg = r => r*180/Math.PI;
+const norm  = d => ((d%360)+360)%360;
+
+function julianDay(y,m,d,h){
+  let Y=y,M=m; if(M<=2){Y--;M+=12;}
+  const A=Math.floor(Y/100), B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(Y+4716))+Math.floor(30.6001*(M+1))+d+B-1524.5+h/24;
+}
+function lahiriAyanamsa(jd){
+  const T=(jd-2451545)/36525;
+  return 23.85+1.38*T;
+}
+function obliquity(jd){
+  const T=(jd-2451545)/36525;
+  return 23.439291111-0.013004167*T-0.0000001639*T*T+0.0000005036*T*T*T;
+}
+function gmst(jd){
+  const T=(jd-2451545)/36525;
+  return norm(280.46061837+360.98564736629*(jd-2451545)+0.000387933*T*T-T*T*T/38710000);
+}
+function lst(jd,lon){ return norm(gmst(jd)+lon); }
+function ascendant(lst,lat,eps){
+  const y=-Math.cos(toRad(lst));
+  const x=Math.sin(toRad(lst))*Math.cos(toRad(eps))+Math.tan(toRad(lat))*Math.sin(toRad(eps));
+  return norm(toDeg(Math.atan2(y,x)));
+}
+function sunLon(jd){
+  const n=jd-2451545;
+  const L=norm(280.460+0.9856474*n);
+  const g=toRad(norm(357.528+0.9856003*n));
+  return norm(L+1.915*Math.sin(g)+0.020*Math.sin(2*g));
+}
+function moonLon(jd){
+  const T=(jd-2451545)/36525;
+  const Lm=norm(218.3164477+481267.88123421*T-0.0015786*T*T);
+  const Mm=toRad(norm(134.9633964+477198.8676313*T+0.0089970*T*T));
+  const M =toRad(norm(357.5291092+35999.0502909*T-0.0001536*T*T));
+  const D =toRad(norm(297.8501921+445267.1114034*T-0.0018819*T*T));
+  const F =toRad(norm(93.2720950+483202.0175233*T-0.0036539*T*T));
+  let s=0;
+  s+=6288774*Math.sin(Mm); s+=1274027*Math.sin(2*D-Mm); s+=658314*Math.sin(2*D);
+  s+=213618*Math.sin(2*Mm); s-=185116*Math.sin(M); s-=114332*Math.sin(2*F);
+  s+=58793*Math.sin(2*D-2*Mm); s+=57066*Math.sin(2*D-M-Mm); s+=53322*Math.sin(2*D+Mm);
+  s+=45758*Math.sin(2*D-M); s-=40923*Math.sin(M-Mm); s-=34720*Math.sin(D);
+  s-=30383*Math.sin(M+Mm); s+=15327*Math.sin(2*D-2*F); s+=10980*Math.sin(Mm-2*F);
+  s+=10675*Math.sin(4*D-Mm); s+=10034*Math.sin(3*Mm); s+=8548*Math.sin(4*D-2*Mm);
+  s-=7888*Math.sin(2*D+M-Mm); s-=6766*Math.sin(2*D+M); s-=5163*Math.sin(D-Mm);
+  s+=4987*Math.sin(D+M); s+=4036*Math.sin(2*D-M+Mm); s+=3994*Math.sin(2*D+2*Mm);
+  s+=3861*Math.sin(4*D); s+=3665*Math.sin(2*D-3*Mm); s-=2689*Math.sin(M-2*Mm);
+  s+=2236*Math.sin(2*D-2*M); s-=2120*Math.sin(M+2*Mm);
+  return norm(Lm+s/1000000);
+}
+function planetLon(name,jd){
+  const n=jd-2451545;
+  const P={
+    mercury:{L0:252.2503,dL:4.09234,M0:174.7948,dM:4.09235,e:0.20563},
+    venus:  {L0:181.9798,dL:1.60213,M0:50.4161, dM:1.60214,e:0.00677},
+    mars:   {L0:355.4330,dL:0.52403,M0:19.3730, dM:0.52403,e:0.09341},
+    jupiter:{L0:34.3515, dL:0.08309,M0:19.8950, dM:0.08309,e:0.04854},
+    saturn: {L0:50.0774, dL:0.03346,M0:316.9670,dM:0.03346,e:0.05551},
+  };
+  const p=P[name];
+  const L=norm(p.L0+p.dL*n);
+  const Mr=toRad(norm(p.M0+p.dM*n));
+  const eoc=(2*p.e-p.e**3/4)*Math.sin(Mr)+(5/4)*p.e**2*Math.sin(2*Mr)+(13/12)*p.e**3*Math.sin(3*Mr);
+  return norm(L+toDeg(eoc));
+}
+function rahuLon(jd){
+  const T=(jd-2451545)/36525;
+  return norm(125.0445479-1934.1362608*T+0.0020754*T*T);
+}
+function sidLon(trop,ayan){ return norm(trop-ayan); }
+function signOf(lon){ return Math.floor(lon/30)+1; }
+function degInSign(lon){ return lon%30; }
+
+// ══════════════════════════════════════════════════════
+// PANCHANG
+// ══════════════════════════════════════════════════════
+function calcPanchang(jd, weekday) {
+  const ayan = lahiriAyanamsa(jd);
+  const sun  = sidLon(sunLon(jd), ayan);
+  const moon = sidLon(moonLon(jd), ayan);
+
+  // Tithi: each tithi = 12° difference
+  const tithiIdx = Math.floor(norm(moon-sun)/12); // 0-29
+
+  // Nakshatra
+  const nakIdx = Math.floor(moon/(360/27)); // 0-26
+
+  // Yoga: (sun+moon) / (360/27)
+  const yogaIdx = Math.floor(norm(sun+moon)/(360/27)) % 27;
+
+  // Karana: half tithi
+  const tithiFull = norm(moon-sun)/12;
+  const karanaRaw = Math.floor(tithiFull*2);
+  let karanaIdx;
+  if (karanaRaw < 1) karanaIdx = 10; // Kimstughna
+  else if (karanaRaw > 57) karanaIdx = (karanaRaw-58) % 4 + 7; // fixed at end
+  else karanaIdx = ((karanaRaw-1) % 7); // movable 0-6
+
+  // Rahu Kalam & Gulika
+  const rSlot  = RAHU_SLOTS[weekday];
+  const gSlot  = GULIKA_SLOTS[weekday];
+  const slotToTime = s => {
+    const h = 6 + (s-1)*1.5;
+    const h1 = Math.floor(h), m1 = Math.round((h-h1)*60);
+    const h2 = Math.floor(h+1.5), m2 = Math.round(((h+1.5)-h2)*60);
+    return `${String(h1).padStart(2,'0')}:${String(m1).padStart(2,'0')} - ${String(h2).padStart(2,'0')}:${String(m2).padStart(2,'0')}`;
+  };
+
+  return {
+    tithi: tithiIdx, nakshatra: nakIdx, yoga: yogaIdx, karana: karanaIdx,
+    rahuKalam: slotToTime(rSlot), gulikaKalam: slotToTime(gSlot),
+    sun, moon
+  };
+}
+
+function renderPanchang() {
+  const now = new Date();
+  const weekday = now.getDay(); // 0=Sun
+  const utcH = now.getUTCHours()+now.getUTCMinutes()/60;
+  const jd = julianDay(now.getUTCFullYear(),now.getUTCMonth()+1,now.getUTCDate(),utcH);
+  const p = calcPanchang(jd, weekday);
+
+  document.getElementById('panchDate').textContent =
+    now.toLocaleDateString('te-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  const paksha = p.tithi < 15 ? 'శుక్ల పక్షం' : 'కృష్ణ పక్షం';
+  const pakshaEn = p.tithi < 15 ? 'Shukla Paksha' : 'Krishna Paksha';
+
+  document.getElementById('panchBody').innerHTML = `
+    <div class="panch-item">
+      <div class="panch-icon">📅</div>
+      <div style="flex:1">
+        <div class="panch-label">వారం<span>Vara / Weekday</span></div>
+        <div class="panch-value">${VARAS[weekday]}<span class="en">${VARAS_EN[weekday]} · Lord: ${VARAS_LORDS[weekday]}</span></div>
+      </div>
+    </div>
+    <div class="panch-item">
+      <div class="panch-icon">🌗</div>
+      <div style="flex:1">
+        <div class="panch-label">తిథి<span>Tithi / Lunar Day</span></div>
+        <div class="panch-value">${TITHIS[p.tithi]}<span class="en">${pakshaEn} · ${TITHIS_EN[p.tithi]}</span></div>
+      </div>
+    </div>
+    <div class="panch-item">
+      <div class="panch-icon">⭐</div>
+      <div style="flex:1">
+        <div class="panch-label">నక్షత్రం<span>Nakshatra / Birth Star</span></div>
+        <div class="panch-value">${NAKSHATRAS[p.nakshatra].te}<span class="en">${NAKSHATRAS[p.nakshatra].en}</span></div>
+      </div>
+    </div>
+    <div class="panch-item">
+      <div class="panch-icon">✨</div>
+      <div style="flex:1">
+        <div class="panch-label">యోగం<span>Yoga</span></div>
+        <div class="panch-value">${YOGAS_TE[p.yoga]}<span class="en">${YOGAS_EN[p.yoga]}</span></div>
+      </div>
+    </div>
+    <div class="panch-item">
+      <div class="panch-icon">🌓</div>
+      <div style="flex:1">
+        <div class="panch-label">కరణం<span>Karana</span></div>
+        <div class="panch-value">${KARANAS_TE[p.karana]}<span class="en">${KARANAS_EN[p.karana]}</span></div>
+      </div>
+    </div>
+    <div class="panch-item">
+      <div class="panch-icon">⚠️</div>
+      <div style="flex:1">
+        <div class="panch-label">రాహు కాలం<span>Rahu Kalam (IST approx)</span></div>
+        <div class="rahu-time">${p.rahuKalam}</div>
+      </div>
+    </div>
+    <div class="panch-item">
+      <div class="panch-icon">🔵</div>
+      <div style="flex:1">
+        <div class="panch-label">గుళిక కాలం<span>Gulika Kalam (IST approx)</span></div>
+        <div class="gulika-time">${p.gulikaKalam}</div>
+      </div>
+    </div>
+    <div class="panch-item">
+      <div class="panch-icon">☀️</div>
+      <div style="flex:1">
+        <div class="panch-label">సూర్య రాశి / Moon రాశి<span>Sun Sign · Moon Sign today</span></div>
+        <div class="panch-value" style="font-size:11px">
+          ☀ ${RASHIS[signOf(p.sun)-1].te} · 🌙 ${RASHIS[signOf(p.moon)-1].te}
+          <span class="en">${RASHIS[signOf(p.sun)-1].en} · ${RASHIS[signOf(p.moon)-1].en}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+// NAKSHATRA & DASHA
+// ══════════════════════════════════════════════════════
+function getNakshatra(moonSid){
+  const span=360/27, idx=Math.floor(moonSid/span);
+  const pos=moonSid-idx*span;
+  const pada=Math.floor(pos/(span/4))+1;
+  return {idx,pada,fraction:pos/span,...NAKSHATRAS[idx%27]};
+}
+function getDashas(nak,birthDate){
+  const lordIdx=DASHA_ORDER.indexOf(nak.lord);
+  const yrsElapsed=nak.fraction*DASHA_YEARS[nak.lord];
+  const YD=365.25;
+  const dashas=[];
+  let cursor=new Date(birthDate);
+  for(let i=0;i<9;i++){
+    const li=(lordIdx+i)%9, lname=DASHA_ORDER[li];
+    const dur=i===0?(DASHA_YEARS[nak.lord]-yrsElapsed):DASHA_YEARS[lname];
+    const from=new Date(cursor);
+    cursor=new Date(cursor.getTime()+dur*YD*86400000);
+    dashas.push({lord:lname,years:DASHA_YEARS[lname],duration:dur,from,to:new Date(cursor)});
+  }
+  return dashas;
+}
+function getAntardashas(md){
+  const lordIdx=DASHA_ORDER.indexOf(md.lord);
+  const YD=365.25;
+  const antars=[];
+  let cursor=new Date(md.from);
+  for(let i=0;i<9;i++){
+    const li=(lordIdx+i)%9, alord=DASHA_ORDER[li];
+    const ayrs=(DASHA_YEARS[md.lord]*DASHA_YEARS[alord])/120;
+    const from=new Date(cursor);
+    cursor=new Date(cursor.getTime()+ayrs*YD*86400000);
+    antars.push({lord:alord,from,to:new Date(cursor)});
+  }
+  return antars;
+}
+
+// ══════════════════════════════════════════════════════
+// GEOCODING
+// ══════════════════════════════════════════════════════
+async function geocodePlace(){
+  const place=document.getElementById('inpPlace').value.trim();
+  if(!place){showToast('Place name enter చేయండి');return;}
+  const disp=document.getElementById('coordsDisplay');
+  disp.className='coords-display'; disp.textContent='🔍 Searching…';
+  try{
+    const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`,
+      {headers:{'Accept-Language':'en'}});
+    const data=await res.json();
+    if(!data.length){disp.className='coords-display err';disp.textContent='❌ Place not found.';return;}
+    const {lat,lon,display_name}=data[0];
+    document.getElementById('inpLat').value=parseFloat(lat).toFixed(4);
+    document.getElementById('inpLon').value=parseFloat(lon).toFixed(4);
+    disp.className='coords-display ok';
+    disp.textContent=`✅ ${display_name.slice(0,70)} | ${parseFloat(lat).toFixed(3)}°, ${parseFloat(lon).toFixed(3)}°`;
+  }catch(e){disp.className='coords-display err';disp.textContent='❌ Geocoding failed. Enter coordinates manually.';}
+}
+
+// ══════════════════════════════════════════════════════
+// CHART RENDERING (SOUTH INDIAN)
+// ══════════════════════════════════════════════════════
+function renderChart(positions, lagnaSign){
+  const grid=document.getElementById('lagnaChart');
+  grid.innerHTML='';
+  const bySign={};
+  for(const [k,v] of Object.entries(positions)){
+    if(!bySign[v.sign])bySign[v.sign]=[];
+    bySign[v.sign].push(k);
+  }
+  // Center cell first (grid-area spans correctly)
+  const center=document.createElement('div');
+  center.className='chart-center';
+  center.innerHTML=`<div class="chart-center-text"><div>🌟</div><div>లగ్న చక్రం</div></div>`;
+  grid.appendChild(center);
+
+  for(let row=0;row<4;row++){
+    for(let col=0;col<4;col++){
+      const signNum=CHART_LAYOUT[row][col];
+      if(signNum===0)continue; // center handled above
+      const cell=document.createElement('div');
+      cell.className='chart-cell'+(signNum===lagnaSign?' lagna-cell':'');
+      cell.style.gridColumn=col+1;
+      cell.style.gridRow=row+1;
+      const rashi=RASHIS[signNum-1];
+      const planetsHere=bySign[signNum]||[];
+      const badges=planetsHere.map(k=>{
+        const m=PLANETS_META.find(p=>p.key===k);
+        return `<span class="planet-badge ${m.cls}">${m.abbr}</span>`;
+      }).join('');
+      cell.innerHTML=`<span class="sign-label">${rashi.te}</span><span class="sign-en">${rashi.en}</span><div class="planets-in-cell">${badges}</div>`;
+      grid.appendChild(cell);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// PLANET TABLE
+// ══════════════════════════════════════════════════════
+function renderPlanetTable(positions){
+  const tbody=document.getElementById('planetBody');
+  tbody.innerHTML=PLANETS_META.filter(p=>p.key!=='lagna').map(meta=>{
+    const pos=positions[meta.key];
+    if(!pos)return '';
+    const rashi=RASHIS[pos.sign-1];
+    const d=Math.floor(pos.deg),m=Math.floor((pos.deg-d)*60);
+    const nakIdx=Math.floor(pos.lon/(360/27))%27;
+    const nak=NAKSHATRAS[nakIdx];
+    return `<tr>
+      <td><span class="planet-badge ${meta.cls}">${meta.abbr}</span> <span class="te-cell">${meta.te}</span><div style="font-size:9px;color:var(--subtext)">${meta.en}</div></td>
+      <td><span class="badge-sign">${rashi.te}</span><div style="font-size:9px;color:var(--subtext)">${rashi.en}</div></td>
+      <td class="mono">${rashi.abbr} ${d}°${m}'</td>
+      <td><span class="te-cell" style="font-size:10px">${nak.te}</span><div style="font-size:9px;color:var(--subtext)">${nak.en}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// DASHA TABLE
+// ══════════════════════════════════════════════════════
+function fmtDate(d){return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function renderDasha(dashas,antars){
+  const now=new Date();
+  document.getElementById('dashaBody').innerHTML=dashas.map(d=>{
+    const isCur=now>=d.from&&now<d.to;
+    const y=Math.floor(d.duration),m=Math.round((d.duration-y)*12);
+    return `<tr${isCur?' class="dasha-running"':''}>
+      <td><strong>${DASHA_TE[d.lord]}</strong><div style="font-size:9px;color:var(--subtext)">${d.lord} · ${d.years}y</div></td>
+      <td style="font-size:10px">${fmtDate(d.from)}</td>
+      <td style="font-size:10px">${fmtDate(d.to)}</td>
+      <td style="font-size:10px;color:var(--subtext)">${y}y${m}m</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('antarBody').innerHTML=antars.map(a=>{
+    const isCur=now>=a.from&&now<a.to;
+    return `<tr${isCur?' class="dasha-running"':''}>
+      <td class="te-cell" style="font-size:10px">${DASHA_TE[a.lord]} <span style="color:var(--subtext)">(${a.lord})</span></td>
+      <td style="font-size:10px">${fmtDate(a.from)}</td>
+      <td style="font-size:10px">${fmtDate(a.to)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// AI INTERPRETATION
+// ══════════════════════════════════════════════════════
+async function getAI(data){
+  const {name,dob,nak,pada,lagnaRashi,rashi,positions,curDasha,curAntar}=data;
+  const planetStr=Object.entries(positions).filter(([k])=>k!=='lagna').map(([k,v])=>{
+    const m=PLANETS_META.find(p=>p.key===k);
+    return `${m.en} in ${RASHIS[v.sign-1].en} (${Math.floor(v.deg)}°)`;
+  }).join(', ');
+  const prompt=`You are an expert Vedic astrologer. Provide a reading for:
+Name: ${name} | DOB: ${dob}
+Nakshatra: ${nak.en} (${nak.te}), Pada ${pada}, Lord: ${nak.lord}
+Lagna: ${lagnaRashi.en} (${lagnaRashi.te}) | Moon Sign: ${rashi.en} (${rashi.te})
+Planets: ${planetStr}
+Current Mahadasha: ${curDasha} | Antardasha: ${curAntar}
+
+Give a structured reading with these sections (Telugu text first, English in brackets):
+**నక్షత్ర స్వభావం / Nakshatra Nature** - Personality from birth star (2-3 lines)
+**లగ్న ఫలం / Lagna Reading** - Character and life path (2-3 lines)
+**రాశి ఫలం / Moon Sign** - Emotional nature (2 lines)
+**దశా ఫలం / Dasha Period** - Current dasha + antardasha prediction (2-3 lines)
+**శుభ సమయాలు / Auspicious Guidance** - Key advice (1-2 lines)
+Keep each section concise and practical.`;
+  try{
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:1200,temperature:0.7})
+    });
+    const json=await res.json();
+    return json.choices?.[0]?.message?.content||null;
+  }catch(e){return null;}
+}
+function renderAI(text){
+  document.getElementById('aiLoading').style.display='none';
+  const el=document.getElementById('aiContent');
+  el.style.display='block';
+  if(!text){el.innerHTML='<p style="color:var(--subtext)">AI interpretation unavailable.</p>';return;}
+  el.innerHTML='<p>'+text.replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--gold2)">$1</strong>').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>')+'</p>';
+}
+
+// ══════════════════════════════════════════════════════
+// CHATBOT
+// ══════════════════════════════════════════════════════
+let chatContext = null;
+let chatHistory = [];
+
+function toggleChat(){
+  const panel=document.getElementById('chatPanel');
+  const fab=document.getElementById('chatFab');
+  panel.classList.toggle('open');
+  fab.classList.toggle('hidden', panel.classList.contains('open'));
+}
+
+function sendSuggestion(el){
+  document.getElementById('chatInput').value=el.textContent;
+  sendChat();
+}
+
+async function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const q=inp.value.trim();
+  if(!q)return;
+  inp.value='';
+
+  appendChatMsg(q,'user');
+  document.getElementById('chatTyping').style.display='block';
+  scrollChat();
+
+  // Build system context
+  let systemPrompt=`You are an expert Vedic astrologer assistant. Answer questions about astrology in Telugu with English in brackets. Be concise and helpful.`;
+  if(chatContext){
+    systemPrompt+=`\n\nUser's birth chart:\nName: ${chatContext.name}\nDOB: ${chatContext.dob}\nNakshatra: ${chatContext.nak.en} (${chatContext.nak.te}), Pada ${chatContext.pada}\nLagna: ${chatContext.lagnaRashi.en} (${chatContext.lagnaRashi.te})\nMoon Sign: ${chatContext.rashi.en} (${chatContext.rashi.te})\nCurrent Mahadasha: ${chatContext.curDasha}\nCurrent Antardasha: ${chatContext.curAntar}`;
+  } else {
+    systemPrompt+=`\n\nNo birth chart calculated yet. Answer general astrology questions.`;
+  }
+
+  chatHistory.push({role:'user',content:q});
+  if(chatHistory.length>10) chatHistory=chatHistory.slice(-10);
+
+  try{
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        messages:[{role:'system',content:systemPrompt},...chatHistory],
+        max_tokens:600,temperature:0.7
+      })
+    });
+    const json=await res.json();
+    const reply=json.choices?.[0]?.message?.content||'క్షమించండి, సమాధానం అందలేదు. (Sorry, no response.)';
+    chatHistory.push({role:'assistant',content:reply});
+    bumpStat('chats'); addLog('chat','Chatbot message sent');
+    document.getElementById('chatTyping').style.display='none';
+    appendChatMsg(reply,'bot');
+  }catch(e){
+    document.getElementById('chatTyping').style.display='none';
+    appendChatMsg('నెట్‌వర్క్ లోపం జరిగింది. (Network error.)', 'bot');
+  }
+  scrollChat();
+}
+
+function appendChatMsg(text,role){
+  const msgs=document.getElementById('chatMessages');
+  const div=document.createElement('div');
+  div.className=`chat-msg ${role}`;
+  if(role==='bot'){
+    div.innerHTML=text.replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--gold2)">$1</strong>').replace(/\n/g,'<br>');
+  } else {
+    div.textContent=text;
+  }
+  msgs.appendChild(div);
+  // Move typing indicator after messages
+  const typing=document.getElementById('chatTyping');
+  msgs.appendChild(typing);
+  scrollChat();
+}
+
+function scrollChat(){
+  const msgs=document.getElementById('chatMessages');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+// ══════════════════════════════════════════════════════
+// MAIN CALCULATE
+// ══════════════════════════════════════════════════════
+async function calculate(){
+  const name=document.getElementById('inpName').value.trim();
+  const dob=document.getElementById('inpDob').value;
+  const tob=document.getElementById('inpTob').value;
+  const lat=parseFloat(document.getElementById('inpLat').value);
+  const lon=parseFloat(document.getElementById('inpLon').value);
+  const utcOffset=parseFloat(document.getElementById('inpOffset').value);
+
+  if(!name||!dob||!tob){showToast('పేరు, తేది, సమయం నమోదు చేయండి');return;}
+  if(isNaN(lat)||isNaN(lon)){showToast('Place locate చేయండి లేదా coordinates నమోదు చేయండి');return;}
+
+  const btn=document.getElementById('btnCalc');
+  btn.disabled=true; btn.textContent='⏳ లెక్కిస్తోంది…';
+
+  try{
+    const [yr,mo,dy]=dob.split('-').map(Number);
+    const [hr,mn]=tob.split(':').map(Number);
+    let utH=hr+mn/60-utcOffset;
+    let d2=dy;
+    if(utH<0){utH+=24;d2--;}
+    if(utH>=24){utH-=24;d2++;}
+    const jd=julianDay(yr,mo,d2,utH);
+    const ayan=lahiriAyanamsa(jd);
+    const eps=obliquity(jd);
+    const lST=lst(jd,lon);
+    const ascTrop=ascendant(lST,lat,eps);
+    const ascSid=sidLon(ascTrop,ayan);
+    const lagnaSign=signOf(ascSid);
+
+    const mk=trop=>({lon:sidLon(trop,ayan),sign:signOf(sidLon(trop,ayan)),deg:degInSign(sidLon(trop,ayan))});
+    const rahu=mk(rahuLon(jd));
+    const positions={
+      sun:mk(sunLon(jd)), moon:mk(moonLon(jd)),
+      mars:mk(planetLon('mars',jd)), mercury:mk(planetLon('mercury',jd)),
+      jupiter:mk(planetLon('jupiter',jd)), venus:mk(planetLon('venus',jd)),
+      saturn:mk(planetLon('saturn',jd)), rahu,
+      ketu:{lon:norm(rahu.lon+180),sign:signOf(norm(rahu.lon+180)),deg:degInSign(norm(rahu.lon+180))},
+      lagna:{lon:ascSid,sign:lagnaSign,deg:degInSign(ascSid)},
+    };
+
+    const nak=getNakshatra(positions.moon.lon);
+    const rashi=RASHIS[positions.moon.sign-1];
+    const lagnaRashi=RASHIS[lagnaSign-1];
+    const birthDate=new Date(yr,mo-1,dy,hr,mn);
+    const dashas=getDashas(nak,birthDate);
+    const now=new Date();
+    const curDasha=dashas.find(d=>now>=d.from&&now<d.to)||dashas[0];
+    const antars=getAntardashas(curDasha);
+    const curAntar=antars.find(a=>now>=a.from&&now<a.to)||antars[0];
+
+    // Summary
+    document.getElementById('sNakshatra').innerHTML=`<span class="te">${nak.te}</span>${nak.en}`;
+    document.getElementById('sNakshatraSub').textContent=`పాద ${nak.pada} · Lord: ${nak.lord}`;
+    document.getElementById('sLagna').innerHTML=`<span class="te">${lagnaRashi.te}</span>${lagnaRashi.en}`;
+    const ld=Math.floor(degInSign(ascSid)),lm=Math.floor((degInSign(ascSid)-ld)*60);
+    document.getElementById('sLagnaSub').textContent=`${ld}° ${lm}' in ${lagnaRashi.en}`;
+    document.getElementById('sRashi').innerHTML=`<span class="te">${rashi.te}</span>${rashi.en}`;
+    document.getElementById('sRashiSub').textContent=`Moon ${Math.floor(positions.moon.deg)}° in ${rashi.en}`;
+    document.getElementById('sDasha').innerHTML=`<span class="te">${DASHA_TE[curDasha.lord]}</span>${curDasha.lord}`;
+    document.getElementById('sDashaSub').textContent=`until ${fmtDate(curDasha.to)} · Antar: ${curAntar.lord}`;
+
+    renderChart(positions,lagnaSign);
+    bumpStat('calcs'); addLog('calc','Calculated horoscope for '+name);
+    renderPlanetTable(positions);
+    renderDasha(dashas,antars);
+
+    document.getElementById('results').style.display='block';
+    document.getElementById('results').scrollIntoView({behavior:'smooth'});
+
+    // Store context for chatbot
+    chatContext={name,dob,nak,pada:nak.pada,lagnaRashi,rashi,positions,curDasha:curDasha.lord,curAntar:curAntar.lord};
+
+    // AI
+    document.getElementById('aiLoading').style.display='flex';
+    document.getElementById('aiContent').style.display='none';
+    getAI({name,dob,nak,pada:nak.pada,lagnaRashi,rashi,positions,curDasha:curDasha.lord,curAntar:curAntar.lord})
+      .then(renderAI);
+
+  }catch(e){
+    console.error(e);
+    showToast('లెక్కించడంలో లోపం: '+e.message,true);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='✨ జాతకం లెక్కించండి — CALCULATE HOROSCOPE';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// PDF DOWNLOAD
+// ══════════════════════════════════════════════════════
+async function downloadPDF(){
+  const resultsEl=document.getElementById('results');
+  const btn=document.getElementById('btnDownload');
+  if(!resultsEl || getComputedStyle(resultsEl).display==='none'){
+    showToast('ముందు జాతకం లెక్కించండి. (Calculate horoscope first.)', true);
+    return;
+  }
+
+  if(!window.jspdf || !window.jspdf.jsPDF){
+    showToast('PDF library లోడ్ కాలేదు. Internet check చేసి మళ్లీ ప్రయత్నించండి.', true);
+    return;
+  }
+
+  btn.disabled=true; btn.textContent='⏳ PDF తయారవుతోంది…';
+  showToast('📄 PDF generate అవుతోంది…');
+  try{
+    const {jsPDF}=window.jspdf;
+    const canvas=await html2canvas(resultsEl,{
+      scale:1.4,
+      useCORS:true,
+      allowTaint:false,
+      backgroundColor:'#0a0a14',
+      logging:false,
+      windowWidth:document.documentElement.scrollWidth,
+      onclone:(doc)=>{
+        // Remove image nodes from cloned export DOM to avoid cross-origin canvas taint.
+        doc.querySelectorAll('#results img').forEach(el=>el.remove());
+        // Hide download button bar from PDF export
+        const downloadBar=doc.querySelector('.download-bar');
+        if(downloadBar)downloadBar.style.display='none';
+      }
+    });
+    const imgData=canvas.toDataURL('image/png');
+    const imgW=210,imgH=(canvas.height*imgW)/canvas.width;
+    const pdf=new jsPDF('p','mm','a4');
+    let y=0;
+    while(y<imgH){
+      if(y>0)pdf.addPage();
+      pdf.addImage(imgData,'PNG',0,-y,imgW,imgH,undefined,'FAST');
+      y+=297;
+    }
+    const name=document.getElementById('inpName').value.trim()||'jatakam';
+    const dob=document.getElementById('inpDob').value;
+    const safeName=name.replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'jatakam';
+    const safeDob=(dob||'date').replace(/[^0-9-]/g,'');
+    pdf.save(`${safeName}_${safeDob}_jatakam.pdf`);
+    bumpStat('pdfs'); addLog('pdf','Downloaded PDF');
+    showToast('✅ PDF download అయింది!');
+  }catch(e){
+    console.error(e);
+    showToast('❌ PDF లోపం: '+e.message,true);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='📥 PDF డౌన్లోడ్ — Download Horoscope PDF';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════
+function showToast(msg,isErr=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.borderColor=isErr?'rgba(224,85,85,.5)':'rgba(212,168,67,.4)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// Init Panchang on load
+renderPanchang();
+</script>
+</body>
+</html>

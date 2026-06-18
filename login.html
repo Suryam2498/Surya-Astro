@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>సూర్య జ్యోతిష్యం — Login</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    :root {
+      --bg:#0a0a14; --surface:#11112a; --surface2:#1a1a3a; --surface3:#22224a;
+      --gold:#d4a843; --gold2:#f0c060; --gold-dim:rgba(212,168,67,.15);
+      --text:#e8e0d0; --subtext:#8888aa; --border:rgba(212,168,67,.28);
+      --red:#e05555; --green:#55c070; --purple:#9060d0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { height: 100%; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 16px 40px;
+      position: relative;
+      background-image:
+        radial-gradient(ellipse at 15% 20%, rgba(90,40,160,.2) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 80%, rgba(30,60,140,.18) 0%, transparent 45%);
+    }
+
+    /* ── STARS ── */
+    .stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .star {
+      position: absolute; border-radius: 50%; background: white;
+      animation: twinkle var(--d,3s) ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: var(--o1,.2); } 50% { opacity: var(--o2,.8); }
+    }
+
+    /* ── CARD ── */
+    .card {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 860px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 0 0 1px rgba(212,168,67,.07), 0 24px 80px rgba(0,0,0,.7);
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      width: 340px;
+      flex-shrink: 0;
+      background: linear-gradient(160deg, #0d0d24 0%, #14103a 40%, #0a0a1e 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      position: relative;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 40%, rgba(212,168,67,.07) 0%, transparent 65%);
+    }
+
+    .ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(212,168,67,.1);
+      animation: rotate var(--s,20s) linear infinite;
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    .bot-wrap {
+      position: relative; z-index: 2;
+      width: 200px; height: 200px;
+      margin-bottom: 20px;
+    }
+    .bot-wrap::before {
+      content: '';
+      position: absolute; inset: -14px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,168,67,.15) 0%, transparent 70%);
+      animation: glow 3s ease-in-out infinite;
+    }
+    @keyframes glow {
+      0%,100% { opacity:.6; transform:scale(1); }
+      50% { opacity:1; transform:scale(1.06); }
+    }
+    .bot-wrap img {
+      width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(212,168,67,.22));
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    .bot-fallback { font-size: 80px; text-align: center; animation: float 4s ease-in-out infinite; }
+
+    .brand-te {
+      font-family: 'Noto Sans Telugu', serif;
+      font-size: 20px; font-weight: 700;
+      color: var(--gold2); text-align: center;
+      text-shadow: 0 0 28px rgba(212,168,67,.4);
+      margin-bottom: 4px; position: relative; z-index: 2;
+    }
+    .brand-en {
+      font-family: 'Cinzel', serif; font-size: 9px;
+      letter-spacing: 3px; color: var(--subtext);
+      text-align: center; position: relative; z-index: 2;
+    }
+    .brand-dots {
+      color: var(--gold); font-size: 10px;
+      letter-spacing: 5px; margin-top: 10px;
+      opacity: .6; position: relative; z-index: 2;
+    }
+    .brand-tagline {
+      font-family: 'Noto Sans Telugu', serif;
+      font-size: 11px; color: var(--subtext);
+      text-align: center; line-height: 1.9;
+      margin-top: 14px; position: relative; z-index: 2;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      flex: 1;
+      padding: 36px 36px 36px;
+      display: flex; flex-direction: column;
+      min-width: 0;
+    }
+
+    /* ── MOBILE TOP HERO ── */
+    .mobile-hero {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 20px 20px;
+      background: linear-gradient(160deg, #0d0d24, #14103a);
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .mobile-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 60%, rgba(212,168,67,.07) 0%, transparent 70%);
+    }
+    .mobile-hero img {
+      width: 110px; height: 110px; object-fit: contain;
+      filter: drop-shadow(0 6px 20px rgba(212,168,67,.25));
+      animation: float 4s ease-in-out infinite;
+      position: relative; z-index: 1;
+    }
+    .mobile-hero-title {
+      font-family: 'Noto Sans Telugu', serif;
+      font-size: 17px; font-weight: 700;
+      color: var(--gold2); margin-top: 10px;
+      text-align: center; position: relative; z-index: 1;
+    }
+    .mobile-hero-sub {
+      font-family: 'Cinzel', serif; font-size: 9px;
+      letter-spacing: 2.5px; color: var(--subtext);
+      margin-top: 2px; position: relative; z-index: 1;
+    }
+
+    /* ── TABS ── */
+    .tab-bar {
+      display: flex;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 28px;
+      flex-shrink: 0;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px 8px;
+      border: none; border-radius: 7px;
+      background: transparent;
+      color: var(--subtext);
+      font-size: 13px; font-weight: 600;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 1px; cursor: pointer;
+      transition: all .2s;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(212,168,67,.2), rgba(90,40,160,.2));
+      color: var(--gold2);
+      box-shadow: 0 2px 10px rgba(212,168,67,.12);
+    }
+
+    /* ── FORM PANELS ── */
+    .form-panel { display: none; flex-direction: column; }
+    .form-panel.active { display: flex; }
+
+    .form-heading {
+      font-family: 'Noto Sans Telugu', serif;
+      font-size: 17px; font-weight: 700;
+      color: var(--gold2); margin-bottom: 3px;
+    }
+    .form-sub {
+      font-size: 11px; color: var(--subtext);
+      margin-bottom: 22px; line-height: 1.6;
+    }
+
+    /* ── ALERT ── */
+    .alert {
+      border-radius: 8px; padding: 10px 13px;
+      font-size: 11.5px; margin-bottom: 16px;
+      display: none; align-items: flex-start; gap: 8px;
+      font-weight: 500; line-height: 1.5;
+    }
+    .alert.show { display: flex; }
+    .alert.err {
+      background: rgba(224,85,85,.12);
+      border: 1px solid rgba(224,85,85,.3);
+      color: #ff9090;
+    }
+    .alert.ok {
+      background: rgba(85,192,112,.12);
+      border: 1px solid rgba(85,192,112,.3);
+      color: #80e090;
+    }
+
+    /* ── FIELD GROUP ── */
+    .fgroup { margin-bottom: 16px; }
+    .fgroup label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: var(--gold); margin-bottom: 6px;
+    }
+    .fgroup label .te {
+      font-family: 'Noto Sans Telugu', serif;
+      font-size: 10.5px; text-transform: none;
+      color: var(--subtext); font-weight: 400;
+    }
+    .inp-wrap { position: relative; }
+    .inp-icon {
+      position: absolute; left: 11px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px; pointer-events: none; opacity: .55;
+    }
+    .fgroup input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: 11px 12px 11px 38px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      -webkit-appearance: none;
+    }
+    .fgroup input:focus {
+      border-color: var(--gold);
+      background: var(--surface3);
+      box-shadow: 0 0 0 3px rgba(212,168,67,.12);
+    }
+    .fgroup input.is-err  { border-color: var(--red);   box-shadow: 0 0 0 3px rgba(224,85,85,.1); }
+    .fgroup input.is-ok   { border-color: var(--green);  box-shadow: 0 0 0 3px rgba(85,192,112,.1); }
+
+    .fmsg { font-size: 10.5px; margin-top: 4px; min-height: 15px; padding-left: 3px; }
+    .fmsg.err { color: var(--red); }
+    .fmsg.ok  { color: var(--green); }
+
+    /* ── STRENGTH BAR ── */
+    .strength-bar {
+      height: 3px; border-radius: 2px;
+      background: var(--surface3); margin-top: 5px;
+    }
+    .strength-fill {
+      height: 100%; border-radius: 2px; width: 0;
+      transition: width .3s, background .3s;
+    }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-submit {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, #5a2a00, #d4a843, #5a2a00);
+      background-size: 200% 100%;
+      border: none; border-radius: 10px;
+      color: #000; font-size: 13px; font-weight: 700;
+      font-family: 'Cinzel', serif; letter-spacing: 2px;
+      cursor: pointer; margin-top: 4px;
+      transition: background-position .3s, transform .12s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(212,168,67,.2);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-submit:hover, .btn-submit:focus {
+      background-position: 100% 0; outline: none;
+      box-shadow: 0 6px 28px rgba(212,168,67,.35);
+    }
+    .btn-submit:active { transform: scale(.98); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 18px 0 0; color: var(--subtext);
+      font-size: 10px; letter-spacing: .05em;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── SWITCH LINK ── */
+    .switch-link {
+      text-align: center; font-size: 12px;
+      color: var(--subtext); margin-top: 14px;
+      padding-bottom: 4px;
+    }
+    .switch-link a {
+      color: var(--gold); text-decoration: none;
+      font-weight: 600; cursor: pointer;
+    }
+    .switch-link a:hover { color: var(--gold2); }
+
+    /* ── SUCCESS OVERLAY ── */
+    .success-ov {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,10,20,.95);
+      z-index: 200; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; text-align: center; padding: 20px;
+    }
+    .success-ov.show { display: flex; animation: fadeIn .4s ease; }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    .suc-icon { font-size: 56px; animation: popIn .5s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes popIn { from { transform:scale(0); } to { transform:scale(1); } }
+    .suc-title {
+      font-family: 'Noto Sans Telugu', serif;
+      font-size: 20px; font-weight: 700; color: var(--gold2);
+    }
+    .suc-sub { font-size: 12px; color: var(--subtext); }
+    .suc-bar { width: 150px; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+    .suc-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold2));
+      animation: loadBar 2s linear forwards;
+    }
+    @keyframes loadBar { from { width:0; } to { width:100%; } }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE — MOBILE
+    ══════════════════════════════════════ */
+    @media (max-width: 640px) {
+      body { padding: 0 0 50px; }
+
+      .card {
+        flex-direction: column;
+        border-radius: 0;
+        border-left: none; border-right: none; border-top: none;
+        min-height: 100vh;
+      }
+
+      /* Hide desktop left panel, show mobile hero */
+      .left-panel  { display: none; }
+      .mobile-hero { display: flex; }
+
+      .right-panel {
+        padding: 24px 20px 32px;
+        flex: 1;
+      }
+
+      .tab-btn { font-size: 12px; padding: 9px 6px; letter-spacing: .5px; }
+      .form-heading { font-size: 15px; }
+      .fgroup input { font-size: 14px; padding: 12px 12px 12px 38px; }
+      .btn-submit { font-size: 12px; padding: 13px; }
+    }
+
+    @media (min-width: 641px) and (max-width: 820px) {
+      .left-panel { width: 260px; padding: 32px 18px; }
+      .bot-wrap { width: 160px; height: 160px; }
+      .right-panel { padding: 28px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="stars" id="starsEl"></div>
+
+<div class="card">
+
+  <!-- ── DESKTOP LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="ring" style="width:300px;height:300px;left:-70px;top:-70px;--s:28s"></div>
+    <div class="ring" style="width:180px;height:180px;right:-40px;bottom:-40px;--s:20s;animation-direction:reverse"></div>
+
+    <div class="bot-wrap">
+      <img src="chatbot-icon.png" alt="Surya Bot"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div class="bot-fallback" style="display:none">🌟</div>
+    </div>
+
+    <div class="brand-te">సూర్య జ్యోతిష్యం</div>
+    <div class="brand-en">SURYA JYOTHISHYAM</div>
+    <div class="brand-dots">✦ ✧ ✦ ✧ ✦</div>
+    <div class="brand-tagline">మీ జాతకం, దశ, పంచాంగం<br>అన్నీ ఒకే చోట</div>
+  </div>
+
+  <!-- ── MOBILE TOP HERO ── -->
+  <div class="mobile-hero">
+    <img src="chatbot-icon.png" alt="Surya Bot"
+      onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div style=\'font-size:60px\'>🌟</div>')">
+    <div class="mobile-hero-title">సూర్య జ్యోతిష్యం</div>
+    <div class="mobile-hero-sub">SURYA JYOTHISHYAM · VEDIC ASTROLOGY</div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabLogin"    onclick="switchTab('login')">🔑 Login</button>
+      <button class="tab-btn"        id="tabRegister" onclick="switchTab('register')">✨ Register</button>
+    </div>
+
+    <!-- ═══ LOGIN FORM ═══ -->
+    <div class="form-panel active" id="panelLogin">
+      <div class="form-heading">స్వాగతం! 🙏</div>
+      <div class="form-sub">Login to your account · మీ ఖాతాలోకి ప్రవేశించండి</div>
+
+      <div class="alert err" id="loginAlert">
+        <span style="font-size:15px;flex-shrink:0">⚠️</span>
+        <span id="loginAlertMsg"></span>
+      </div>
+
+      <div class="fgroup">
+        <label>👤 Name <span class="te">/ పేరు</span></label>
+        <div class="inp-wrap">
+          <span class="inp-icon">👤</span>
+          <input type="text" id="loginName" placeholder="మీ పేరు నమోదు చేయండి"
+            autocomplete="username"
+            oninput="clearAlert('login')"
+            onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+        </div>
+        <div class="fmsg" id="loginNameMsg"></div>
+      </div>
+
+      <div class="fgroup">
+        <label>🔒 Password <span class="te">/ పాస్‌వర్డ్</span></label>
+        <div class="inp-wrap">
+          <span class="inp-icon">🔒</span>
+          <input type="password" id="loginPass" placeholder="పాస్‌వర్డ్ నమోదు చేయండి"
+            autocomplete="current-password"
+            oninput="clearAlert('login')"
+            onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="fmsg" id="loginPassMsg"></div>
+      </div>
+
+      <button class="btn-submit" onclick="doLogin()">✨ లాగిన్ అవ్వండి — ENTER</button>
+
+      <div class="divider">OR</div>
+      <div class="switch-link">
+        కొత్త ఖాతా? &nbsp;<a onclick="switchTab('register')">Register చేయండి →</a>
+      </div>
+    </div>
+
+    <!-- ═══ REGISTER FORM ═══ -->
+    <div class="form-panel" id="panelRegister">
+      <div class="form-heading">కొత్త ఖాతా తెరవండి ✨</div>
+      <div class="form-sub">Create your account · మీ జాతకం సేవ్ చేయడానికి నమోదు చేయండి</div>
+
+      <div class="alert err" id="regAlert">
+        <span style="font-size:15px;flex-shrink:0">⚠️</span>
+        <span id="regAlertMsg"></span>
+      </div>
+
+      <div class="fgroup">
+        <label>👤 Name <span class="te">/ పేరు</span></label>
+        <div class="inp-wrap">
+          <span class="inp-icon">👤</span>
+          <input type="text" id="regName" placeholder="మీ పూర్తి పేరు నమోదు చేయండి"
+            autocomplete="username"
+            oninput="validateRegName()"
+            onkeydown="if(event.key==='Enter')document.getElementById('regPass').focus()">
+        </div>
+        <div class="fmsg" id="regNameMsg"></div>
+      </div>
+
+      <div class="fgroup">
+        <label>🔒 Password <span class="te">/ పాస్‌వర్డ్</span></label>
+        <div class="inp-wrap">
+          <span class="inp-icon">🔒</span>
+          <input type="password" id="regPass" placeholder="కనీసం 6 అక్షరాలు"
+            autocomplete="new-password"
+            oninput="validateRegPass()"
+            onkeydown="if(event.key==='Enter')document.getElementById('regPass2').focus()">
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="fmsg" id="regPassMsg"></div>
+      </div>
+
+      <div class="fgroup">
+        <label>🔑 Re-enter Password <span class="te">/ మళ్లీ నమోదు</span></label>
+        <div class="inp-wrap">
+          <span class="inp-icon">🔑</span>
+          <input type="password" id="regPass2" placeholder="పాస్‌వర్డ్ మళ్లీ నమోదు చేయండి"
+            autocomplete="new-password"
+            oninput="validateConfirm()"
+            onkeydown="if(event.key==='Enter')doRegister()">
+        </div>
+        <div class="fmsg" id="regPass2Msg"></div>
+      </div>
+
+      <button class="btn-submit" onclick="doRegister()">🌟 నమోదు చేయండి — REGISTER</button>
+
+      <div class="divider">OR</div>
+      <div class="switch-link">
+        ఇప్పటికే ఖాతా ఉందా? &nbsp;<a onclick="switchTab('login')">← Login చేయండి</a>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+</div><!-- /card -->
+
+<!-- Success Overlay -->
+<div class="success-ov" id="successOv">
+  <div class="suc-icon">🌟</div>
+  <div class="suc-title" id="sucTitle">స్వాగతం!</div>
+  <div class="suc-sub" id="sucSub">జాతకం పేజీకి తీసుకెళ్తున్నాం…</div>
+  <div class="suc-bar"><div class="suc-fill"></div></div>
+</div>
+
+<script>
+/* ── STARS ── */
+(function(){
+  const c=document.getElementById('starsEl');
+  for(let i=0;i<70;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=Math.random()*2+.8;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;
+      --d:${(Math.random()*4+2).toFixed(1)}s;--o1:${(Math.random()*.1+.04).toFixed(2)};
+      --o2:${(Math.random()*.6+.25).toFixed(2)};animation-delay:${(Math.random()*5).toFixed(1)}s`;
+    c.appendChild(s);
+  }
+})();
+
+/* ── STORAGE ── */
+function getUsers(){ try{return JSON.parse(localStorage.getItem('surya_users')||'{}')}catch{return{}} }
+function saveUsers(u){ localStorage.setItem('surya_users',JSON.stringify(u)); }
+
+/* ── TAB SWITCH ── */
+function switchTab(t){
+  ['login','register'].forEach(k=>{
+    document.getElementById('panel'+cap(k)).classList.toggle('active',k===t);
+    document.getElementById('tab'+cap(k)).classList.toggle('active',k===t);
+  });
+  clearAlert('login'); clearAlert('reg');
+}
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+/* ── ALERTS ── */
+function showAlert(p,msg){ const el=document.getElementById(p+'Alert'); el.classList.add('show'); document.getElementById(p+'AlertMsg').textContent=msg; }
+function clearAlert(p){ document.getElementById(p+'Alert').classList.remove('show'); }
+
+/* ── FIELD STATE ── */
+function setF(id, state, msg=''){
+  const inp=document.getElementById(id);
+  inp.className=state==='ok'?'is-ok':state==='err'?'is-err':'';
+  const m=document.getElementById(id+'Msg');
+  if(m){ m.textContent=msg; m.className='fmsg '+(state||''); }
+}
+
+/* ── VALIDATION ── */
+function validateRegName(){
+  const v=document.getElementById('regName').value.trim();
+  if(!v){ setF('regName','',''); return false; }
+  if(v.length<2){ setF('regName','err','కనీసం 2 అక్షరాలు / Min 2 characters'); return false; }
+  const users=getUsers();
+  if(users[v.toLowerCase()]){
+    setF('regName','err','⚠️ ఈ పేరు ఇప్పటికే ఉంది! / Name already exists!');
+    return false;
+  }
+  setF('regName','ok','✅ పేరు అందుబాటులో ఉంది / Available');
+  return true;
+}
+
+function validateRegPass(){
+  const v=document.getElementById('regPass').value;
+  const fill=document.getElementById('strengthFill');
+  if(!v){ setF('regPass','',''); fill.style.width='0'; return false; }
+  let s=0;
+  if(v.length>=6)s++;
+  if(/[A-Z]/.test(v))s++;
+  if(/[0-9]/.test(v))s++;
+  if(/[^A-Za-z0-9]/.test(v))s++;
+  const MAP=[
+    {w:'0',c:'transparent',l:''},
+    {w:'25%',c:'var(--red)',l:'బలహీనం / Weak'},
+    {w:'50%',c:'#e08840',l:'సాధారణం / Fair'},
+    {w:'75%',c:'#b0c040',l:'మంచిది / Good'},
+    {w:'100%',c:'var(--green)',l:'చాలా బాగుంది / Strong'},
+  ];
+  fill.style.width=MAP[s].w; fill.style.background=MAP[s].c;
+  if(v.length<6){ setF('regPass','err','కనీసం 6 అక్షరాలు / Min 6 chars'); return false; }
+  setF('regPass','ok',MAP[s].l);
+  if(document.getElementById('regPass2').value) validateConfirm();
+  return true;
+}
+
+function validateConfirm(){
+  const p1=document.getElementById('regPass').value;
+  const p2=document.getElementById('regPass2').value;
+  if(!p2){ setF('regPass2','',''); return false; }
+  if(p1!==p2){ setF('regPass2','err','❌ సరిపోలలేదు / Passwords do not match'); return false; }
+  setF('regPass2','ok','✅ సరిపోతున్నాయి / Match!');
+  return true;
+}
+
+/* ── LOGIN ── */
+function doLogin(){
+  const name=document.getElementById('loginName').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  clearAlert('login');
+  if(!name){ setF('loginName','err','పేరు నమోదు చేయండి'); document.getElementById('loginName').focus(); return; }
+  if(!pass){ setF('loginPass','err','పాస్‌వర్డ్ నమోదు చేయండి'); document.getElementById('loginPass').focus(); return; }
+  const users=getUsers();
+  const key=name.toLowerCase();
+  if(!users[key]){ showAlert('login','⚠️ ఈ పేరు నమోదు కాలేదు / Name not found — please register first'); return; }
+  if(users[key].password!==btoa(pass)){ showAlert('login','❌ పాస్‌వర్డ్ తప్పు / Incorrect password'); setF('loginPass','err',''); return; }
+  sessionStorage.setItem('surya_user', users[key].displayName);
+  bumpStat('logins');
+  addLog('login','User logged in: '+users[key].displayName);
+  // Update lastActive
+  const us=getUsers(); us[key].lastActive=new Date().toISOString(); saveUsers(us);
+  showSuccess('login', users[key].displayName);
+}
+
+/* ── REGISTER ── */
+function doRegister(){
+  clearAlert('reg');
+  const name=document.getElementById('regName').value.trim();
+  const pass=document.getElementById('regPass').value;
+  const nOk=validateRegName(), pOk=validateRegPass(), cOk=validateConfirm();
+  if(!name||!pass){ showAlert('reg','అన్ని ఖాళీలు పూరించండి / Fill all fields'); return; }
+  if(!nOk||!pOk||!cOk){ showAlert('reg','దయచేసి లోపాలు సరిచేయండి / Fix errors above'); return; }
+  const users=getUsers();
+  const key=name.toLowerCase();
+  if(users[key]){ showAlert('reg','⚠️ "'+name+'" పేరు ఇప్పటికే ఉంది! / Already registered!'); setF('regName','err','⚠️ ఉంది!'); return; }
+  users[key]={ displayName:name, password:btoa(pass), createdAt:new Date().toISOString() };
+  saveUsers(users);
+  sessionStorage.setItem('surya_user', name);
+  bumpStat('logins');
+  addLog('register','New user registered: '+name);
+  showSuccess('register', name);
+}
+
+/* ── STATS TRACKER ── */
+function bumpStat(key){
+  const s=JSON.parse(localStorage.getItem('surya_stats')||'{}');
+  s[key]=(s[key]||0)+1; localStorage.setItem('surya_stats',JSON.stringify(s));
+}
+function addLog(type,msg){
+  const logs=JSON.parse(localStorage.getItem('surya_activity_log')||'[]');
+  logs.unshift({type,msg,ts:new Date().toISOString()});
+  if(logs.length>200)logs.pop();
+  localStorage.setItem('surya_activity_log',JSON.stringify(logs));
+}
+
+/* ── SUCCESS ── */
+function showSuccess(type, name){
+  const ov=document.getElementById('successOv');
+  document.getElementById('sucTitle').textContent = type==='login' ? `🙏 స్వాగతం, ${name}!` : `🌟 నమోదు విజయవంతం, ${name}!`;
+  document.getElementById('sucSub').textContent = type==='login' ? 'జాతకం పేజీకి తీసుకెళ్తున్నాం…' : 'ఖాతా తయారైంది! తెరుస్తున్నాం…';
+  ov.classList.add('show');
+  setTimeout(()=>{ window.location.href='index.html'; }, 2200);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Surya Jyothishyam</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    :root {
+      --bg:#0a0a14; --surface:#11112a; --surface2:#1a1a3a; --surface3:#22224a;
+      --gold:#d4a843; --gold2:#f0c060; --gold-dim:rgba(212,168,67,.12);
+      --text:#e8e0d0; --subtext:#8888aa; --border:rgba(212,168,67,.22);
+      --red:#e05555; --green:#55c070; --cyan:#5bc8d8; --purple:#9060d0;
+      --blue:#4488ff;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    /* ── ADMIN LOGIN GATE ── */
+    .admin-gate{
+      display:flex;align-items:center;justify-content:center;
+      min-height:100vh;padding:20px;
+      background:radial-gradient(ellipse at 30% 30%,rgba(90,40,160,.18) 0%,transparent 50%),
+                 radial-gradient(ellipse at 70% 70%,rgba(30,60,140,.15) 0%,transparent 50%);
+    }
+    .gate-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:16px;padding:40px 36px;width:100%;max-width:380px;
+      box-shadow:0 24px 80px rgba(0,0,0,.6);text-align:center;
+    }
+    .gate-icon{font-size:44px;margin-bottom:12px}
+    .gate-title{font-family:'Cinzel',serif;font-size:18px;color:var(--gold2);margin-bottom:4px}
+    .gate-sub{font-size:11px;color:var(--subtext);margin-bottom:28px;letter-spacing:.05em}
+    .gate-input{
+      width:100%;background:var(--surface2);border:1.5px solid var(--border);
+      border-radius:9px;padding:11px 14px;color:var(--text);font-size:14px;
+      font-family:'Inter',sans-serif;outline:none;margin-bottom:14px;text-align:center;
+      letter-spacing:3px;
+    }
+    .gate-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,168,67,.12)}
+    .gate-btn{
+      width:100%;padding:12px;background:linear-gradient(135deg,#5a2a00,#d4a843,#5a2a00);
+      background-size:200%;border:none;border-radius:9px;color:#000;font-size:13px;
+      font-weight:700;font-family:'Cinzel',serif;letter-spacing:2px;cursor:pointer;
+      transition:background-position .3s;
+    }
+    .gate-btn:hover{background-position:100% 0}
+    .gate-err{font-size:11px;color:var(--red);margin-top:10px;min-height:16px}
+
+    /* ── ADMIN DASHBOARD ── */
+    .dashboard{display:none}
+
+    /* ── TOP NAV ── */
+    .topnav{
+      background:var(--surface);border-bottom:1px solid var(--border);
+      padding:14px 24px;display:flex;align-items:center;
+      justify-content:space-between;position:sticky;top:0;z-index:50;
+    }
+    .topnav-brand{display:flex;align-items:center;gap:12px}
+    .topnav-brand h1{font-family:'Cinzel',serif;font-size:16px;color:var(--gold2)}
+    .topnav-brand span{font-size:10px;color:var(--subtext);letter-spacing:.05em}
+    .admin-badge{
+      background:linear-gradient(135deg,rgba(224,85,85,.2),rgba(212,168,67,.15));
+      border:1px solid rgba(224,85,85,.3);color:#ff9090;
+      font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.07em;
+    }
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .btn-refresh{
+      padding:6px 14px;background:var(--surface2);border:1px solid var(--border);
+      border-radius:7px;color:var(--gold);font-size:11px;font-weight:600;cursor:pointer;
+      font-family:'Cinzel',serif;letter-spacing:.5px;transition:all .15s;
+    }
+    .btn-refresh:hover{background:var(--gold-dim)}
+    .btn-logout-admin{
+      padding:6px 14px;background:var(--surface2);border:1px solid rgba(224,85,85,.3);
+      border-radius:7px;color:#ff9090;font-size:11px;font-weight:600;cursor:pointer;
+      transition:all .15s;
+    }
+    .btn-logout-admin:hover{background:rgba(224,85,85,.1)}
+
+    /* ── MAIN CONTENT ── */
+    .content{max-width:1200px;margin:0 auto;padding:24px 20px 48px}
+
+    /* ── STATS GRID ── */
+    .stats-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:14px;margin-bottom:28px;
+    }
+    .stat-card{
+      background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      padding:18px 16px;position:relative;overflow:hidden;text-align:center;
+    }
+    .stat-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,var(--accent,var(--gold)),transparent);
+    }
+    .stat-card .stat-icon{font-size:26px;margin-bottom:8px}
+    .stat-card .stat-val{font-size:28px;font-weight:700;color:var(--accent,var(--gold2));line-height:1}
+    .stat-card .stat-label{font-size:10px;color:var(--subtext);margin-top:5px;letter-spacing:.05em;text-transform:uppercase}
+
+    /* ── SECTION HEADER ── */
+    .sec-header{
+      font-family:'Cinzel',serif;font-size:13px;color:var(--gold);
+      margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .sec-header .right{display:flex;align-items:center;gap:10px}
+
+    /* ── SEARCH ── */
+    .search-input{
+      background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+      padding:7px 12px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;
+      outline:none;width:200px;
+    }
+    .search-input:focus{border-color:var(--gold)}
+
+    /* ── TABLE ── */
+    .table-wrap{
+      background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      overflow:hidden;margin-bottom:28px;
+    }
+    .data-table{width:100%;border-collapse:collapse;font-size:12px}
+    .data-table thead th{
+      background:var(--surface2);padding:10px 14px;text-align:left;
+      font-size:9.5px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.07em;color:var(--gold);border-bottom:1px solid var(--border);
+    }
+    .data-table tbody td{
+      padding:10px 14px;border-bottom:1px solid rgba(212,168,67,.07);
+      vertical-align:middle;
+    }
+    .data-table tbody tr:last-child td{border-bottom:none}
+    .data-table tbody tr:hover td{background:var(--gold-dim)}
+    .no-data{text-align:center;padding:30px;color:var(--subtext);font-size:12px}
+
+    /* ── BADGES ── */
+    .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:9.5px;font-weight:700}
+    .badge-active{background:rgba(85,192,112,.15);color:#80e090;border:1px solid rgba(85,192,112,.3)}
+    .badge-inactive{background:rgba(136,136,170,.1);color:var(--subtext);border:1px solid rgba(136,136,170,.2)}
+    .badge-today{background:rgba(212,168,67,.15);color:var(--gold2);border:1px solid rgba(212,168,67,.3)}
+
+    /* ── ACTIVITY LOG ── */
+    .log-entry{
+      display:flex;align-items:flex-start;gap:12px;
+      padding:10px 14px;border-bottom:1px solid rgba(212,168,67,.06);
+      font-size:11.5px;
+    }
+    .log-entry:last-child{border-bottom:none}
+    .log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+    .log-dot.login{background:var(--green)}
+    .log-dot.register{background:var(--gold)}
+    .log-dot.calc{background:var(--cyan)}
+    .log-time{color:var(--subtext);font-size:10px;white-space:nowrap;margin-top:1px}
+
+    /* ── DELETE CONFIRM ── */
+    .del-btn{
+      padding:4px 10px;background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.25);
+      border-radius:5px;color:var(--red);font-size:10px;cursor:pointer;
+      transition:all .15s;font-family:'Inter',sans-serif;
+    }
+    .del-btn:hover{background:rgba(224,85,85,.2)}
+
+    /* ── CHART-LIKE BAR ── */
+    .mini-bar-wrap{display:flex;align-items:center;gap:8px}
+    .mini-bar{height:6px;border-radius:3px;background:var(--gold);opacity:.7;min-width:2px;transition:width .4s}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:640px){
+      .content{padding:16px 14px 48px}
+      .topnav{padding:12px 16px}
+      .topnav-brand h1{font-size:13px}
+      .data-table{font-size:11px}
+      .data-table thead th,.data-table tbody td{padding:8px 10px}
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .search-input{width:140px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ ADMIN GATE ═══ -->
+<div class="admin-gate" id="adminGate">
+  <div class="gate-card">
+    <div class="gate-icon">🛡️</div>
+    <div class="gate-title">ADMIN ACCESS</div>
+    <div class="gate-sub">Surya Jyothishyam · Admin Panel</div>
+    <input type="password" class="gate-input" id="adminPass"
+      placeholder="Enter admin password"
+      onkeydown="if(event.key==='Enter')checkAdminPass()">
+    <button class="gate-btn" onclick="checkAdminPass()">🔐 ENTER ADMIN</button>
+    <div class="gate-err" id="gateErr"></div>
+    <div style="margin-top:18px;font-size:10px;color:var(--subtext)">
+      <a href="login.html" style="color:var(--gold);text-decoration:none">← Back to App</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div class="dashboard" id="dashboard">
+
+  <!-- Top Nav -->
+  <div class="topnav">
+    <div class="topnav-brand">
+      <div>
+        <h1>⚡ Admin Panel</h1>
+        <span>సూర్య జ్యోతిష్యం — Control Center</span>
+      </div>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-refresh" onclick="loadDashboard()">🔄 Refresh</button>
+      <button class="btn-logout-admin" onclick="logoutAdmin()">Logout ↩</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stats Grid -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card" style="--accent:var(--gold2)">
+        <div class="stat-icon">👥</div>
+        <div class="stat-val" id="statUsers">0</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--green)">
+        <div class="stat-icon">📅</div>
+        <div class="stat-val" id="statToday">0</div>
+        <div class="stat-label">Registered Today</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--cyan)">
+        <div class="stat-icon">🌟</div>
+        <div class="stat-val" id="statCalcs">0</div>
+        <div class="stat-label">Horoscopes Calculated</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--purple)">
+        <div class="stat-icon">🔑</div>
+        <div class="stat-val" id="statLogins">0</div>
+        <div class="stat-label">Total Logins</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--blue)">
+        <div class="stat-icon">💬</div>
+        <div class="stat-val" id="statChats">0</div>
+        <div class="stat-label">Chatbot Messages</div>
+      </div>
+      <div class="stat-card" style="--accent:#ff9944">
+        <div class="stat-icon">📥</div>
+        <div class="stat-val" id="statPDFs">0</div>
+        <div class="stat-label">PDFs Downloaded</div>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="sec-header">
+      <span>👥 Registered Users</span>
+      <div class="right">
+        <input type="text" class="search-input" id="userSearch"
+          placeholder="🔍 Search name…" oninput="filterUsers()">
+        <span id="userCount" style="font-size:10px;color:var(--subtext)">0 users</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Registered On</th>
+            <th>Status</th>
+            <th>Horoscopes</th>
+            <th>Last Active</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="sec-header">
+      <span>📋 Activity Log</span>
+      <div class="right">
+        <span id="logCount" style="font-size:10px;color:var(--subtext)"></span>
+        <button class="btn-refresh" style="font-size:10px;padding:4px 10px"
+          onclick="clearLog()">🗑️ Clear</button>
+      </div>
+    </div>
+    <div class="table-wrap" id="activityLog" style="max-height:320px;overflow-y:auto">
+      <div class="no-data">No activity logged yet.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════
+   ADMIN PASSWORD (change as needed)
+════════════════════════════════════ */
+const ADMIN_PASS = 'admin@surya123';
+
+/* ════════════════════════════════════
+   GATE
+════════════════════════════════════ */
+function checkAdminPass(){
+  const p = document.getElementById('adminPass').value;
+  if(p === ADMIN_PASS){
+    sessionStorage.setItem('admin_auth','1');
+    document.getElementById('adminGate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadDashboard();
+  } else {
+    document.getElementById('gateErr').textContent = '❌ Incorrect password';
+    document.getElementById('adminPass').value = '';
+    document.getElementById('adminPass').focus();
+  }
+}
+function logoutAdmin(){
+  sessionStorage.removeItem('admin_auth');
+  window.location.reload();
+}
+
+// Auto-restore if session active
+if(sessionStorage.getItem('admin_auth')==='1'){
+  document.getElementById('adminGate').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+}
+
+/* ════════════════════════════════════
+   DATA HELPERS
+════════════════════════════════════ */
+function getUsers(){ try{return JSON.parse(localStorage.getItem('surya_users')||'{}')}catch{return{}} }
+function getLogs(){  try{return JSON.parse(localStorage.getItem('surya_activity_log')||'[]')}catch{return[]} }
+function getStats(){ try{return JSON.parse(localStorage.getItem('surya_stats')||'{}')}catch{return{}} }
+
+/* ════════════════════════════════════
+   LOG WRITER (for main app to use)
+════════════════════════════════════ */
+function writeLog(type, msg){
+  const logs = getLogs();
+  logs.unshift({ type, msg, ts: new Date().toISOString() });
+  if(logs.length>200) logs.pop();
+  localStorage.setItem('surya_activity_log', JSON.stringify(logs));
+}
+
+/* ════════════════════════════════════
+   LOAD DASHBOARD
+════════════════════════════════════ */
+let allUsers = [];
+
+function loadDashboard(){
+  const users  = getUsers();
+  const logs   = getLogs();
+  const stats  = getStats();
+  allUsers     = Object.entries(users);
+
+  // ── Stats ──
+  const now  = new Date();
+  const today= now.toDateString();
+  const todayCount = allUsers.filter(([,u])=>new Date(u.createdAt).toDateString()===today).length;
+
+  document.getElementById('statUsers').textContent  = allUsers.length;
+  document.getElementById('statToday').textContent  = todayCount;
+  document.getElementById('statCalcs').textContent  = stats.calcs  || 0;
+  document.getElementById('statLogins').textContent = stats.logins || 0;
+  document.getElementById('statChats').textContent  = stats.chats  || 0;
+  document.getElementById('statPDFs').textContent   = stats.pdfs   || 0;
+
+  // ── Users Table ──
+  renderUsersTable(allUsers);
+
+  // ── Activity Log ──
+  renderLog(logs);
+}
+
+function renderUsersTable(list){
+  const tbody = document.getElementById('usersBody');
+  const now   = new Date();
+  document.getElementById('userCount').textContent = list.length+' users';
+
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="7" class="no-data">No users registered yet.</td></tr>';
+    return;
+  }
+
+  const logs = getLogs();
+
+  tbody.innerHTML = list.map(([key, u], i) => {
+    const reg  = new Date(u.createdAt);
+    const isToday = reg.toDateString() === now.toDateString();
+    const lastLog = logs.find(l => l.msg && l.msg.toLowerCase().includes(u.displayName.toLowerCase()));
+    const calcs = (u.calcs||0);
+    const barW  = Math.min(calcs*18, 100);
+
+    return `<tr>
+      <td style="color:var(--subtext)">${i+1}</td>
+      <td>
+        <strong style="color:var(--text)">${u.displayName}</strong>
+        <div style="font-size:9px;color:var(--subtext)">${key}</div>
+      </td>
+      <td>
+        <div style="font-size:11px">${reg.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
+        <div style="font-size:9px;color:var(--subtext)">${reg.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+      </td>
+      <td>
+        ${isToday
+          ? '<span class="badge badge-today">New Today</span>'
+          : '<span class="badge badge-active">Active</span>'}
+      </td>
+      <td>
+        <div class="mini-bar-wrap">
+          <span style="font-size:12px;font-weight:600;color:var(--cyan);min-width:16px">${calcs}</span>
+          <div class="mini-bar" style="width:${barW}px"></div>
+        </div>
+      </td>
+      <td style="font-size:10px;color:var(--subtext)">
+        ${u.lastActive ? new Date(u.lastActive).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}
+      </td>
+      <td>
+        <button class="del-btn" onclick="deleteUser('${key}')">🗑️ Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterUsers(){
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  const filtered = allUsers.filter(([k,u]) =>
+    u.displayName.toLowerCase().includes(q) || k.includes(q)
+  );
+  renderUsersTable(filtered);
+}
+
+function deleteUser(key){
+  if(!confirm('Delete user "'+key+'"? This cannot be undone.')) return;
+  const users = getUsers();
+  delete users[key];
+  localStorage.setItem('surya_users', JSON.stringify(users));
+  writeLog('delete', 'Admin deleted user: '+key);
+  loadDashboard();
+}
+
+/* ════════════════════════════════════
+   ACTIVITY LOG
+════════════════════════════════════ */
+const LOG_ICONS = { login:'🔑', register:'✨', calc:'🌟', chat:'💬', pdf:'📥', delete:'🗑️' };
+const LOG_CLASSES = { login:'login', register:'register', calc:'calc', chat:'login', pdf:'calc', delete:'login' };
+
+function renderLog(logs){
+  const el = document.getElementById('activityLog');
+  document.getElementById('logCount').textContent = logs.length+' entries';
+  if(!logs.length){
+    el.innerHTML='<div class="no-data">No activity logged yet.</div>';
+    return;
+  }
+  el.innerHTML = logs.map(l=>{
+    const t = new Date(l.ts);
+    return `<div class="log-entry">
+      <div class="log-dot ${LOG_CLASSES[l.type]||'login'}"></div>
+      <div style="flex:1">
+        <span>${LOG_ICONS[l.type]||'•'} ${l.msg}</span>
+      </div>
+      <div class="log-time">${t.toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+    </div>`;
+  }).join('');
+}
+
+function clearLog(){
+  if(!confirm('Clear all activity logs?')) return;
+  localStorage.removeItem('surya_activity_log');
+  loadDashboard();
+}
+
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+if(sessionStorage.getItem('admin_auth')==='1') loadDashboard();
+</script>
+</body>
+</html>
