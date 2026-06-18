@@ -2,6 +2,9 @@
   publish = "."
   functions = "netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "18"
+
 [functions]
   node_bundler = "esbuild"
 
@@ -14,3 +17,4 @@
   from = "/api/groq-chat"
   to = "/.netlify/functions/groq-chat"
   status = 200
+  force = true

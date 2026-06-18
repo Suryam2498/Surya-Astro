@@ -1,3 +1,5 @@
+const https = require('https');
+
 exports.handler = async (event) => {
   const headers = {
     "Content-Type": "application/json",
@@ -15,41 +17,56 @@ exports.handler = async (event) => {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: "Server is missing GEMINI_API_KEY environment variable" }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: "Missing GEMINI_API_KEY" }) };
   }
 
   let payload;
   try {
     payload = JSON.parse(event.body || "{}");
-  } catch (err) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid JSON body" }) };
+  } catch {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid JSON" }) };
   }
 
-  if (!Array.isArray(payload.messages) || payload.messages.length === 0) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: "messages array is required" }) };
+  if (!Array.isArray(payload.messages) || !payload.messages.length) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: "messages required" }) };
   }
 
-  try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "gemini-1.5-flash",
-          messages: payload.messages,
-          max_tokens: payload.max_tokens || 800,
-          temperature: payload.temperature ?? 0.7
-        })
+  const body = JSON.stringify({
+    model: "gemini-1.5-flash",
+    messages: payload.messages,
+    max_tokens: payload.max_tokens || 800,
+    temperature: payload.temperature ?? 0.7
+  });
+
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'generativelanguage.googleapis.com',
+      path: '/v1beta/openai/chat/completions',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
       }
-    );
+    };
 
-    const data = await response.json();
-    return { statusCode: response.status, headers, body: JSON.stringify(data) };
-  } catch (err) {
-    return { statusCode: 502, headers, body: JSON.stringify({ error: "Failed to reach Gemini API: " + err.message }) };
-  }
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          resolve({ statusCode: res.statusCode, headers, body: data });
+        } catch {
+          resolve({ statusCode: 502, headers, body: JSON.stringify({ error: "Bad response from Gemini" }) });
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      resolve({ statusCode: 502, headers, body: JSON.stringify({ error: "Request failed: " + err.message }) });
+    });
+
+    req.write(body);
+    req.end();
+  });
 };
